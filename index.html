@@ -316,8 +316,16 @@ const kelimeler = [
   "amca","dayı","hala","yenge","kuzen","torun","gelin","damat"
 ];
 
-function kelimeVarMi(p){ return kelimeler.some(k=>k.startsWith(p)); }
-function tamKelimeMi(s){ return kelimeler.includes(s) && s.length>=3; }
+function normalize(s) { return s.toLocaleLowerCase('tr-TR').trim(); }
+
+function kelimeVarMi(p){ 
+  const np = normalize(p);
+  return kelimeler.some(k=>normalize(k).startsWith(np)); 
+}
+function tamKelimeMi(s){ 
+  const ns = normalize(s);
+  return kelimeler.includes(ns) && ns.length>=3; 
+}
 
 // ================================================
 // OYUN DEĞİŞKENLERİ
@@ -417,10 +425,11 @@ function oyunuBaslat(){
   ekran('oyun');
 
   // Firebase'i dinle
-  odaRef.on('value', snap => {
+  const oyunuDinle = odaRef.on('value', snap => {
     if(!snap.exists()){
-      alert('Rakip ayrıldı! Oyun bitti.');
-      location.reload();
+      odaRef.off('value', oyunuDinle);
+      alert('Oda kapatıldı veya rakip ayrıldı.');
+      window.location.reload();
       return;
     }
     const d = snap.val();
@@ -448,7 +457,7 @@ function guncelle(d){
   document.getElementById('turNo').textContent = `TUR ${d.tur || 1}`;
 
   // Harfler
-  harfEkranGuncelle(d.harfler || '');
+  harfEkranGuncelle(d.harfler || '', d.turSonu);
 
   // Sıra
   const bendeSira = d.sira === benimRolum;
@@ -472,7 +481,7 @@ async function harf(h){
   if(!d || d.sira !== benimRolum){ bilgi('Sıra sende değil!', true); return; }
   if(d.turSonu) return;
 
-  const yeni = (d.harfler || '') + h;
+  const yeni = (d.harfler || '') + h.toLocaleLowerCase('tr-TR');
 
   if(!kelimeVarMi(yeni)){
     // Geçersiz — ben kaybettim
@@ -541,6 +550,7 @@ async function rakipKaybetti(d, sebep){
 function yeniTurZamanla(d){
   // Sadece host yeni turu başlatır (çift yazma önleme)
   if(benimRolum !== 'host') return;
+  const delay = 4000; // Biraz daha uzun süre sonuç görülsün
   setTimeout(async () => {
     const snap = await odaRef.get();
     if(!snap.exists()) return;
@@ -568,8 +578,8 @@ function turOverlayGoster(turSonu, benimSkor, rakipSkor, rakipAd){
   bas.style.color  = bendKazandim ? 'var(--grn)' : 'var(--red)';
 
   let acik = '';
-  if(turSonu.sebep === 'tamamlandi')    acik = `"${turSonu.tamamlananKelime?.toUpperCase()}" kelimesi tamamlandı!`;
-  else if(turSonu.sebep === 'gecersizHarf') acik = `"${turSonu.gecersizHarfler?.toUpperCase()}" ile başlayan kelime yok!`;
+  if(turSonu.sebep === 'tamamlandi')    acik = `"${turSonu.tamamlananKelime?.toLocaleUpperCase('tr-TR')}" kelimesi tamamlandı!`;
+  else if(turSonu.sebep === 'gecersizHarf') acik = `"${turSonu.gecersizHarfler?.toLocaleUpperCase('tr-TR')}" ile başlayan kelime yok!`;
   else if(turSonu.sebep === 'itirazHakli')  acik = 'İtiraz haklıydı — kelime yoktu!';
   else if(turSonu.sebep === 'itirazHaksiz') acik = 'İtiraz haksızdı — kelime vardı!';
   document.getElementById('ovAciklama').textContent = acik;
@@ -588,11 +598,11 @@ function ekran(id){
   document.getElementById(id).classList.add('aktif');
 }
 
-function harfEkranGuncelle(h){
+function harfEkranGuncelle(h, turSonu){
   const el = document.getElementById('harfEkran');
   const sc = document.getElementById('harfSayac');
   if(!h){ el.innerHTML='<span class="harf-bos">Henüz harf yok...</span>'; sc.textContent='0 harf'; }
-  else  { el.textContent = h.toUpperCase(); sc.textContent=`${h.length} harf`; }
+  else  { el.textContent = h.toLocaleUpperCase('tr-TR'); sc.textContent=`${h.length} harf`; }
 }
 
 function klavyeAktif(aktif, harfler){
@@ -632,8 +642,10 @@ function koduKopyala(){
 
 // Fiziksel klavye
 document.addEventListener('keydown', e=>{
+  const inputlar = ['INPUT', 'TEXTAREA'];
+  if(inputlar.includes(document.activeElement.tagName)) return;
   if(!document.getElementById('oyun').classList.contains('aktif')) return;
-  const h = e.key.toLowerCase();
+  const h = e.key.toLocaleLowerCase('tr-TR');
   const gecerli = 'abcçdefgğhıijklmnoöprsştuüvyz';
   if(h.length===1 && gecerli.includes(h)) harf(h);
 });
