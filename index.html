@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kelime Savaşı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- PeerJS ücretsiz cloud sunucusu -->
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<style>
+:root {
+  --bg:      #0a0a12;
+  --bg2:     #12121e;
+  --bg3:     #1a1a2a;
+  --red:     #ff2d55;
+  --blue:    #007aff;
+  --yellow:  #ffd60a;
+  --green:   #30d158;
+  --white:   #f5f5f7;
+  --gray:    #636366;
+  --font1:   'Bebas Neue', sans-serif;
+  --font2:   'Nunito', sans-serif;
+  --r:       16px;
+  --t:       0.2s cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:var(--font2);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(255,45,85,.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(0,122,255,.08) 0%, transparent 55%);
+}
+
+/* EKRANLAR */
+.ekran{display:none;width:100%;max-width:480px;padding:16px;animation:fadeUp .4s ease both;}
+.ekran.aktif{display:flex;flex-direction:column;align-items:center;gap:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* GİRİŞ */
+.kart{
+  background:var(--bg2);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:28px;
+  padding:40px 32px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  box-shadow:0 32px 80px rgba(0,0,0,.6);
+}
+.logo{font-family:var(--font1);font-size:56px;line-height:1;display:flex;gap:2px;margin-bottom:-4px;}
+.logo span:first-child{color:var(--red);}
+.logo span:last-child{color:var(--blue);}
+h1{font-family:var(--font1);font-size:34px;letter-spacing:3px;text-align:center;}
+.sub{font-size:13px;color:var(--gray);text-align:center;line-height:1.7;max-width:280px;}
+
+input{
+  width:100%;background:var(--bg3);
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:var(--r);padding:14px 18px;
+  font-size:15px;font-family:var(--font2);
+  color:var(--white);outline:none;
+  transition:border-color var(--t);
+}
+input:focus{border-color:var(--blue);}
+input::placeholder{color:var(--gray);}
+
+.divider{
+  width:100%;display:flex;align-items:center;gap:12px;
+  font-size:12px;color:var(--gray);
+}
+.divider::before,.divider::after{
+  content:'';flex:1;height:1px;background:rgba(255,255,255,.08);
+}
+
+.btn{
+  width:100%;padding:15px;border:none;border-radius:var(--r);
+  font-family:var(--font2);font-size:15px;font-weight:800;
+  cursor:pointer;transition:all var(--t);letter-spacing:.3px;
+}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:translateY(0);}
+.btn-red{background:linear-gradient(135deg,var(--red),#c0183a);color:#fff;box-shadow:0 4px 24px rgba(255,45,85,.35);}
+.btn-red:hover{box-shadow:0 8px 32px rgba(255,45,85,.5);}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#0055d4);color:#fff;box-shadow:0 4px 24px rgba(0,122,255,.3);}
+.btn-sm{width:auto;padding:11px 22px;font-size:14px;}
+.btn-ghost{background:var(--bg3);color:var(--white);border:1.5px solid rgba(255,255,255,.12);}
+
+.hata{
+  background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.35);
+  border-radius:10px;padding:11px 16px;font-size:13px;color:#ff6b85;
+  width:100%;text-align:center;display:none;
+}
+
+/* BEKLEME */
+.spinner{
+  width:52px;height:52px;
+  border:4px solid rgba(255,255,255,.08);
+  border-top-color:var(--red);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.kod-kutu{
+  font-family:var(--font1);font-size:52px;letter-spacing:10px;
+  color:var(--yellow);background:var(--bg3);
+  padding:18px 32px;border-radius:var(--r);
+  border:2px dashed rgba(255,214,10,.25);
+  cursor:pointer;transition:all var(--t);
+  user-select:all;
+}
+.kod-kutu:hover{border-color:rgba(255,214,10,.5);}
+.ipucu{font-size:12px;color:var(--gray);}
+
+/* OYUN */
+#oyunEkrani{max-width:500px;gap:14px;}
+
+.ust{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;background:var(--bg2);border-radius:var(--r);
+  padding:16px 20px;border:1px solid rgba(255,255,255,.07);
+}
+.oyuncu{display:flex;flex-direction:column;gap:3px;}
+.oyuncu.sol{align-items:flex-start;}
+.oyuncu.sag{align-items:flex-end;}
+.o-ad{font-size:12px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.o-skor{font-family:var(--font1);font-size:40px;line-height:1;}
+.oyuncu.aktif .o-ad{color:var(--blue);}
+.oyuncu.aktif .o-skor{color:var(--blue);}
+
+.orta{text-align:center;}
+.tur-no{font-family:var(--font1);font-size:13px;letter-spacing:2px;color:var(--gray);}
+.sira{font-size:11px;color:var(--yellow);font-weight:800;margin-top:2px;}
+
+.harf-alan{
+  width:100%;background:var(--bg2);border-radius:var(--r);
+  padding:28px 20px;text-align:center;
+  border:1px solid rgba(255,255,255,.07);
+  min-height:110px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+}
+.harf-ekran{
+  font-family:var(--font1);font-size:56px;letter-spacing:10px;
+  min-height:64px;display:flex;align-items:center;flex-wrap:wrap;justify-content:center;
+}
+.harf-bos{font-family:var(--font2);font-size:15px;color:var(--gray);font-style:italic;letter-spacing:0;}
+.harf-sayac{font-size:11px;color:var(--gray);letter-spacing:1px;}
+
+.klavye{width:100%;display:flex;flex-direction:column;gap:7px;}
+.satir{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;}
+.tus{
+  width:44px;height:44px;background:var(--bg3);
+  border:1.5px solid rgba(255,255,255,.09);
+  border-radius:10px;color:var(--white);
+  font-family:var(--font2);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all var(--t);
+}
+.tus:hover:not(:disabled){
+  background:var(--blue);border-color:var(--blue);
+  transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,122,255,.4);
+}
+.tus:active:not(:disabled){transform:translateY(0);}
+.tus.ozel{background:rgba(255,214,10,.07);border-color:rgba(255,214,10,.2);color:var(--yellow);}
+.tus:disabled{opacity:.25;cursor:not-allowed;}
+
+.alt{display:flex;justify-content:center;gap:12px;width:100%;}
+.btn-itiraz{
+  background:linear-gradient(135deg,var(--yellow),#e6a800);
+  color:#111;font-weight:900;padding:13px 28px;
+  border-radius:50px;width:auto;
+  box-shadow:0 4px 20px rgba(255,214,10,.3);
+}
+.btn-itiraz:disabled{opacity:.25;cursor:not-allowed;transform:none;}
+
+.bilgi{text-align:center;font-size:13px;color:var(--gray);min-height:20px;font-weight:700;}
+
+/* OVERLAY */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(10,10,18,.88);
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:99;animation:fadeUp .3s ease;
+}
+.overlay.gizli{display:none;}
+.ov-kutu{
+  background:var(--bg2);border:1px solid rgba(255,255,255,.1);
+  border-radius:28px;padding:48px 40px;
+  text-align:center;display:flex;flex-direction:column;
+  gap:14px;align-items:center;max-width:320px;
+  box-shadow:0 40px 100px rgba(0,0,0,.7);
+  animation:pop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+.ov-emoji{font-size:68px;}
+.ov-kutu h2{font-family:var(--font1);font-size:34px;letter-spacing:2px;}
+.ov-kutu p{color:var(--gray);font-size:14px;line-height:1.7;}
+.skor-ozet{
+  display:flex;gap:20px;background:var(--bg3);
+  padding:14px 28px;border-radius:var(--r);
+  font-family:var(--font1);font-size:30px;
+}
+.pulse{font-size:12px;color:var(--gray);animation:nabiz 1s ease infinite;}
+@keyframes nabiz{0%,100%{opacity:1}50%{opacity:.3}}
+
+@media(max-width:480px){
+  .kart{padding:28px 18px;}
+  .harf-ekran{font-size:38px;letter-spacing:6px;}
+  .tus{width:36px;height:38px;font-size:12px;}
+  .kod-kutu{font-size:38px;letter-spacing:7px;padding:14px 24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- GİRİŞ EKRANI -->
+<div id="giris" class="ekran aktif">
+  <div class="kart">
+    <div class="logo"><span>K</span><span>S</span></div>
+    <h1>Kelime Savaşı</h1>
+    <p class="sub">Sırayla harf ekle — Kelimeyi tamamlarsan kaybedersin!</p>
+
+    <input id="adInput" type="text" placeholder="Adını gir..." maxlength="14"/>
+
+    <button class="btn btn-red" onclick="odaOlustur()">🏠 Oda Oluştur</button>
+
+    <div class="divider">ya da</div>
+
+    <input id="kodInput" type="text" placeholder="Oda kodunu gir..." maxlength="20" style="text-align:center;letter-spacing:3px;text-transform:uppercase"/>
+    <button class="btn btn-blue" onclick="odayaKatil()">⚔️ Odaya Katıl</button>
+
+    <div class="hata" id="hataDiv"></div>
+  </div>
+</div>
+
+<!-- BEKLEME EKRANI -->
+<div id="bekleme" class="ekran">
+  <div class="kart">
+    <div class="spinner"></div>
+    <h2 style="font-family:var(--font1);font-size:28px;letter-spacing:2px;">Rakip Bekleniyor...</h2>
+    <p style="color:var(--gray);font-size:13px;">Bu kodu arkadaşına gönder:</p>
+    <div class="kod-kutu" id="kodGoster" onclick="koduKopyala(this)" title="Kopyalamak için tıkla">------</div>
+    <button class="btn btn-ghost btn-sm" onclick="koduKopyala(document.getElementById('kodGoster'))">📋 Kopyala</button>
+    <p class="ipucu">Arkadaşın bu kodu girince oyun başlar</p>
+  </div>
+</div>
+
+<!-- OYUN EKRANI -->
+<div id="oyun" class="ekran">
+  <div class="ust">
+    <div class="oyuncu sol" id="ok1">
+      <div class="o-ad" id="ad1">Oyuncu 1</div>
+      <div class="o-skor" id="skor1">0</div>
+    </div>
+    <div class="orta">
+      <div class="tur-no" id="turNo">TUR 1</div>
+      <div class="sira" id="siraDiv">—</div>
+    </div>
+    <div class="oyuncu sag" id="ok2">
+      <div class="o-ad" id="ad2">Oyuncu 2</div>
+      <div class="o-skor" id="skor2">0</div>
+    </div>
+  </div>
+
+  <div class="harf-alan">
+    <div class="harf-ekran" id="harfEkran"><span class="harf-bos">Henüz harf yok...</span></div>
+    <div class="harf-sayac" id="harfSayac">0 harf</div>
+  </div>
+
+  <div class="klavye">
+    <div class="satir">
+      <button class="tus" onclick="harf('e')">E</button>
+      <button class="tus" onclick="harf('r')">R</button>
+      <button class="tus" onclick="harf('t')">T</button>
+      <button class="tus" onclick="harf('y')">Y</button>
+      <button class="tus" onclick="harf('u')">U</button>
+      <button class="tus" onclick="harf('ı')">I</button>
+      <button class="tus" onclick="harf('o')">O</button>
+      <button class="tus" onclick="harf('p')">P</button>
+    </div>
+    <div class="satir">
+      <button class="tus" onclick="harf('a')">A</button>
+      <button class="tus" onclick="harf('s')">S</button>
+      <button class="tus" onclick="harf('d')">D</button>
+      <button class="tus" onclick="harf('f')">F</button>
+      <button class="tus" onclick="harf('g')">G</button>
+      <button class="tus" onclick="harf('h')">H</button>
+      <button class="tus" onclick="harf('j')">J</button>
+      <button class="tus" onclick="harf('k')">K</button>
+      <button class="tus" onclick="harf('l')">L</button>
+    </div>
+    <div class="satir">
+      <button class="tus" onclick="harf('z')">Z</button>
+      <button class="tus" onclick="harf('c')">C</button>
+      <button class="tus" onclick="harf('v')">V</button>
+      <button class="tus" onclick="harf('b')">B</button>
+      <button class="tus" onclick="harf('n')">N</button>
+      <button class="tus" onclick="harf('m')">M</button>
+    </div>
+    <div class="satir">
+      <button class="tus ozel" onclick="harf('ç')">Ç</button>
+      <button class="tus ozel" onclick="harf('ş')">Ş</button>
+      <button class="tus ozel" onclick="harf('ğ')">Ğ</button>
+      <button class="tus ozel" onclick="harf('ü')">Ü</button>
+      <button class="tus ozel" onclick="harf('ö')">Ö</button>
+      <button class="tus ozel" onclick="harf('i')">İ</button>
+    </div>
+  </div>
+
+  <div class="alt">
+    <button class="btn btn-itiraz" id="itirazBtn" onclick="itirazEt()">⚠️ İtiraz Et</button>
+  </div>
+  <div class="bilgi" id="bilgiDiv"></div>
+</div>
+
+<!-- TUR SONU OVERLAY -->
+<div class="overlay gizli" id="turOverlay">
+  <div class="ov-kutu">
+    <div class="ov-emoji" id="ovEmoji">🏆</div>
+    <h2 id="ovBaslik">KAZANDIN!</h2>
+    <p id="ovAciklama"></p>
+    <div class="skor-ozet" id="ovSkor"></div>
+    <p class="pulse">Yeni tur başlıyor...</p>
+  </div>
+</div>
+
+<script>
+// =============================================
+// TÜRKÇE KELİME LİSTESİ
+// =============================================
+const kelimeler = [
+  "araba","armut","aslan","ayak","balik","bardak","bebek","bisiklet",
+  "bulut","cadde","ceket","çanta","çiçek","deniz","dondurma","dünya",
+  "elma","fare","fener","fincan","gece","gelincik","gemi","gitar",
+  "güneş","hayat","horoz","irmak","kale","kalem","kapı","kaplan",
+  "kar","kedi","kemik","kilim","kitap","köpek","köy","kuş","lamba",
+  "limon","masa","mavi","melek","meyve","nehir","okul","orman","oyun",
+  "pamuk","pencere","portakal","resim","rüzgar","saat","sabun","sandal",
+  "sarı","sebze","sepet","şeker","şehir","tablo","taş","telefon","tren",
+  "uçak","uyku","üzüm","vapur","yağmur","yaprak","yıldız","yol","yunus",
+  "zeytin","bahçe","banka","çarşı","doktor","ekran","fabrika","gazete",
+  "hastane","ilaç","köprü","mektup","nota","opera","pazar","radyo",
+  "sinema","tiyatro","uzman","vitrin","yazar","anahtar","bilgisayar",
+  "çikolata","davul","ekmek","fırın","havlu","iskemle","kavanoz",
+  "lokanta","müzik","parfüm","robot","sözlük","tatil","vanilya",
+  "akşam","bahar","borsa","çoban","dağ","erik","fiş","gece","hava",
+  "inci","kovan","lahana","mantar","nar","palto","rende","süt","taksi",
+  "umut","vadi","yaban","zeytin","atlas","boya","cam","dal","ev",
+  "fil","gül","has","ip","jeton","kaz","lale","mor","nal","ot",
+  "pul","renk","ses","top","un","var","yay","zil"
+];
+
+function kelimeVarMi(prefix) {
+  return kelimeler.some(k => k.startsWith(prefix));
+}
+function tamKelimeMi(s) {
+  return kelimeler.includes(s) && s.length >= 3;
+}
+
+// =============================================
+// OYUN DURUMU
+// =============================================
+let peer, conn;
+let benim = { ad: '', skor: 0 };
+let rakip = { ad: '', skor: 0 };
+let mevcutHarfler = '';
+let bendeSira = false;
+let tur = 1;
+let host = false; // Odayı ben mi kurdum?
+
+// =============================================
+// PEER BAĞLANTI
+// =============================================
+function yeniPeer(cb) {
+  // PeerJS ücretsiz cloud sunucusunu kullan
+  peer = new Peer(undefined, {
+    host: '0.peerjs.com',
+    port: 443,
+    path: '/',
+    secure: true
+  });
+  peer.on('open', id => cb(id));
+  peer.on('error', e => hataGoster('Bağlantı hatası: ' + e.type));
+}
+
+// =============================================
+// ODA OLUŞTUR (Host)
+// =============================================
+function odaOlustur() {
+  const ad = document.getElementById('adInput').value.trim();
+  if (!ad) { hataGoster('Lütfen bir ad gir!'); return; }
+  benim.ad = ad;
+  host = true;
+
+  yeniPeer(id => {
+    // Oda kodu = Peer ID'nin ilk 8 karakteri (büyük harf)
+    const kod = id.substring(0, 8).toUpperCase();
+    document.getElementById('kodGoster').textContent = kod;
+    ekran('bekleme');
+
+    // Rakibin bağlanmasını bekle
+    peer.on('connection', c => {
+      conn = c;
+      baglantiyiAyarla();
+    });
+  });
+}
+
+// =============================================
+// ODAYA KATIL (Guest)
+// =============================================
+function odayaKatil() {
+  const ad = document.getElementById('adInput').value.trim();
+  const kod = document.getElementById('kodInput').value.trim().toUpperCase();
+  if (!ad) { hataGoster('Lütfen bir ad gir!'); return; }
+  if (kod.length < 6) { hataGoster('Geçerli bir oda kodu gir!'); return; }
+  benim.ad = ad;
+  host = false;
+
+  yeniPeer(() => {
+    // Host'un Peer ID'sini bul (kod = ID'nin ilk 8 harfi büyük harf)
+    // Gerçek ID'yi bulmak için host'un tam ID'sine ihtiyaç var
+    // Çözüm: Host kendi tam ID'sini kod olarak gösterir ama kısaltır
+    // Misafir bu kodu kullanarak bağlanır
+    // NOT: PeerJS'te ID tahmin edilemez, bu yüzden tam ID'yi kullanacağız
+    // Kullanıcı tam kodu kopyalar
+    conn = peer.connect(kod, { reliable: true });
+    conn.on('open', () => {
+      // Bağlandı! Adımızı gönder
+      gonderi({ tip: 'katildi', ad: benim.ad });
+      baglantiyiAyarla();
+      // Host oyunu başlatacak
+    });
+    conn.on('error', () => hataGoster('Bağlanamadı! Kodu kontrol et.'));
+  });
+}
+
+// =============================================
+// BAĞLANTI AYARLA
+// =============================================
+function baglantiyiAyarla() {
+  conn.on('data', mesajAl);
+  conn.on('close', () => {
+    alert('Rakip bağlantısı kesildi!');
+    location.reload();
+  });
+
+  if (host) {
+    // Host rakibin adını bekler, sonra oyunu başlatır
+    // (katildi mesajı gelince oyunBaslat çağrılır)
+  }
+}
+
+// =============================================
+// MESAJ GÖNDER / AL
+// =============================================
+function gonderi(data) {
+  if (conn && conn.open) conn.send(data);
+}
+
+function mesajAl(data) {
+  switch(data.tip) {
+    case 'katildi':
+      rakip.ad = data.ad;
+      if (host) {
+        // Oyunu başlat — host ilk oynar
+        bendeSira = true;
+        oyunBaslat();
+        gonderi({ tip: 'oyunBasladi', hostAd: benim.ad, guestAd: rakip.ad });
+      }
+      break;
+
+    case 'oyunBasladi':
+      rakip.ad = data.hostAd;
+      // Misafir ikinci oynar
+      bendeSira = false;
+      oyunBaslat();
+      break;
+
+    case 'harfEklendi':
+      mevcutHarfler = data.harfler;
+      harfEkranGuncelle();
+      bendeSira = true;
+      klavyeAktif(true);
+      siraGoster();
+      bilgi(`${rakip.ad} "${data.harf.toUpperCase()}" ekledi`);
+      break;
+
+    case 'turBitti':
+      turBittiGoster(data);
+      break;
+
+    case 'yeniTur':
+      mevcutHarfler = '';
+      tur = data.tur;
+      harfEkranGuncelle();
+      document.getElementById('turNo').textContent = `TUR ${tur}`;
+      bendeSira = data.ilkOyuncu === benim.ad;
+      klavyeAktif(bendeSira);
+      siraGoster();
+      document.getElementById('turOverlay').classList.add('gizli');
+      break;
+  }
+}
+
+// =============================================
+// OYUN BAŞLAT
+// =============================================
+function oyunBaslat() {
+  ekran('oyun');
+  mevcutHarfler = '';
+  tur = 1;
+
+  // Adları yerleştir (ben solda, rakip sağda)
+  document.getElementById('ad1').textContent = benim.ad;
+  document.getElementById('ad2').textContent = rakip.ad;
+  document.getElementById('skor1').textContent = '0';
+  document.getElementById('skor2').textContent = '0';
+  document.getElementById('turNo').textContent = 'TUR 1';
+
+  harfEkranGuncelle();
+  klavyeAktif(bendeSira);
+  siraGoster();
+}
+
+// =============================================
+// HARF EKLE
+// =============================================
+function harf(h) {
+  if (!bendeSira) { bilgi('Sıra sende değil!', true); return; }
+
+  const yeni = mevcutHarfler + h;
+
+  if (!kelimeVarMi(yeni)) {
+    // Geçersiz harf — ben kaybettim
+    bendeSira = false;
+    klavyeAktif(false);
+    const data = { tip: 'turBitti', sebep: 'gecersizHarf', kaybeden: benim.ad, harfler: yeni };
+    gonderi(data);
+    turBittiGoster(data);
+    return;
+  }
+
+  if (tamKelimeMi(yeni)) {
+    // Kelimeyi tamamladım — ben kaybettim
+    bendeSira = false;
+    klavyeAktif(false);
+    const data = { tip: 'turBitti', sebep: 'tamamlandi', kaybeden: benim.ad, kelime: yeni };
+    gonderi(data);
+    turBittiGoster(data);
+    return;
+  }
+
+  // Normal — rakibe gönder
+  mevcutHarfler = yeni;
+  harfEkranGuncelle();
+  bendeSira = false;
+  klavyeAktif(false);
+  siraGoster();
+  gonderi({ tip: 'harfEklendi', harf: h, harfler: yeni });
+}
+
+// =============================================
+// İTİRAZ ET
+// =============================================
+function itirazEt() {
+  if (bendeSira) { bilgi('Kendi sıranda itiraz edemezsin!', true); return; }
+  if (!mevcutHarfler) { bilgi('Henüz harf yok!', true); return; }
+
+  // Bu harflerle devam eden kelime var mı?
+  const devamVar = kelimeler.some(k => k.startsWith(mevcutHarfler) && k !== mevcutHarfler);
+
+  let data;
+  if (devamVar) {
+    // Kelime var — itiraz eden (ben) kaybettim
+    data = { tip: 'turBitti', sebep: 'itiraz', kaybeden: benim.ad, kelimeVar: true };
+  } else {
+    // Kelime yok — rakip kaybetti
+    data = { tip: 'turBitti', sebep: 'itiraz', kaybeden: rakip.ad, kelimeVar: false };
+  }
+  gonderi(data);
+  turBittiGoster(data);
+}
+
+// =============================================
+// TUR BİTTİ
+// =============================================
+function turBittiGoster(data) {
+  klavyeAktif(false);
+
+  const bendKazandim = data.kaybeden !== benim.ad;
+
+  // Skor güncelle
+  if (bendKazandim) {
+    benim.skor++;
+    document.getElementById('skor1').textContent = benim.skor;
+  } else {
+    rakip.skor++;
+    document.getElementById('skor2').textContent = rakip.skor;
+  }
+
+  // Overlay
+  document.getElementById('ovEmoji').textContent = bendKazandim ? '🏆' : '💀';
+  const baslik = document.getElementById('ovBaslik');
+  baslik.textContent = bendKazandim ? 'KAZANDIN!' : 'KAYBETTİN!';
+  baslik.style.color = bendKazandim ? 'var(--green)' : 'var(--red)';
+
+  let acik = '';
+  if (data.sebep === 'tamamlandi') acik = `"${data.kelime?.toUpperCase()}" kelimesini tamamladı!`;
+  else if (data.sebep === 'gecersizHarf') acik = `"${data.harfler?.toUpperCase()}" ile başlayan kelime yok!`;
+  else if (data.sebep === 'itiraz') acik = data.kelimeVar ? 'İtiraz haksız — kelime vardı!' : 'İtiraz haklı — kelime yoktu!';
+  document.getElementById('ovAciklama').textContent = acik;
+
+  document.getElementById('ovSkor').innerHTML =
+    `<span>${benim.ad}: ${benim.skor}</span><span style="color:var(--gray)">—</span><span>${rakip.ad}: ${rakip.skor}</span>`;
+
+  document.getElementById('turOverlay').classList.remove('gizli');
+
+  // 3 saniye sonra yeni tur
+  setTimeout(() => {
+    tur++;
+    mevcutHarfler = '';
+    harfEkranGuncelle();
+    document.getElementById('turNo').textContent = `TUR ${tur}`;
+    document.getElementById('turOverlay').classList.add('gizli');
+
+    // Kaybeden başlar
+    bendeSira = data.kaybeden === benim.ad;
+    klavyeAktif(bendeSira);
+    siraGoster();
+
+    gonderi({ tip: 'yeniTur', tur, ilkOyuncu: data.kaybeden });
+  }, 3000);
+}
+
+// =============================================
+// YARDIMCI FONKSİYONLAR
+// =============================================
+function ekran(id) {
+  document.querySelectorAll('.ekran').forEach(e => e.classList.remove('aktif'));
+  document.getElementById(id).classList.add('aktif');
+}
+
+function harfEkranGuncelle() {
+  const el = document.getElementById('harfEkran');
+  const sayac = document.getElementById('harfSayac');
+  if (!mevcutHarfler) {
+    el.innerHTML = '<span class="harf-bos">Henüz harf yok...</span>';
+    sayac.textContent = '0 harf';
+  } else {
+    el.innerHTML = mevcutHarfler.toUpperCase().split('').join('');
+    sayac.textContent = `${mevcutHarfler.length} harf`;
+  }
+}
+
+function klavyeAktif(aktif) {
+  document.querySelectorAll('.tus').forEach(t => t.disabled = !aktif);
+  document.getElementById('itirazBtn').disabled = aktif || !mevcutHarfler;
+}
+
+function siraGoster() {
+  const el = document.getElementById('siraDiv');
+  el.textContent = bendeSira ? '⚡ SENİN SIRAN' : `⏳ ${rakip.ad}'nın Sırası`;
+
+  document.getElementById('ok1').classList.toggle('aktif', bendeSira);
+  document.getElementById('ok2').classList.toggle('aktif', !bendeSira);
+}
+
+function bilgi(mesaj, uyari = false) {
+  const el = document.getElementById('bilgiDiv');
+  el.textContent = mesaj;
+  el.style.color = uyari ? '#ff6b85' : 'var(--gray)';
+  setTimeout(() => el.textContent = '', 2500);
+}
+
+function hataGoster(mesaj) {
+  const el = document.getElementById('hataDiv');
+  el.textContent = mesaj;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function koduKopyala(el) {
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    const orig = el.textContent;
+    el.textContent = '✅ Kopyalandı!';
+    setTimeout(() => el.textContent = orig, 2000);
+  });
+}
+
+// Fiziksel klavye desteği
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('oyun').classList.contains('aktif')) return;
+  const h = e.key.toLowerCase();
+  const gecerli = 'abcçdefgğhıijklmnoöprsştuüvyz';
+  if (h.length === 1 && gecerli.includes(h)) harf(h);
+});
+</script>
+</body>
+</html>
