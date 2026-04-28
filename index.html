@@ -3,87 +3,66 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Kelime Savaşı</title>
+<title>Kelime Savaşı 🗡️</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<!-- PeerJS ücretsiz cloud sunucusu -->
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<!-- Firebase CDN (npm gerekmez!) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
 :root {
-  --bg:      #0a0a12;
-  --bg2:     #12121e;
-  --bg3:     #1a1a2a;
-  --red:     #ff2d55;
-  --blue:    #007aff;
-  --yellow:  #ffd60a;
-  --green:   #30d158;
-  --white:   #f5f5f7;
-  --gray:    #636366;
-  --font1:   'Bebas Neue', sans-serif;
-  --font2:   'Nunito', sans-serif;
-  --r:       16px;
-  --t:       0.2s cubic-bezier(.4,0,.2,1);
+  --bg:    #0a0a12;
+  --bg2:   #12121e;
+  --bg3:   #1a1a2a;
+  --red:   #ff2d55;
+  --blue:  #007aff;
+  --yel:   #ffd60a;
+  --grn:   #30d158;
+  --wht:   #f5f5f7;
+  --gry:   #636366;
+  --f1:    'Bebas Neue', sans-serif;
+  --f2:    'Nunito', sans-serif;
+  --r:     16px;
+  --t:     0.2s cubic-bezier(.4,0,.2,1);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
-  background:var(--bg);
-  color:var(--white);
-  font-family:var(--font2);
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  background:var(--bg);color:var(--wht);font-family:var(--f2);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
   background-image:
-    radial-gradient(ellipse at 15% 20%, rgba(255,45,85,.08) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 80%, rgba(0,122,255,.08) 0%, transparent 55%);
+    radial-gradient(ellipse at 15% 20%,rgba(255,45,85,.08) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 80%,rgba(0,122,255,.08) 0%,transparent 55%);
 }
-
-/* EKRANLAR */
 .ekran{display:none;width:100%;max-width:480px;padding:16px;animation:fadeUp .4s ease both;}
-.ekran.aktif{display:flex;flex-direction:column;align-items:center;gap:0;}
+.ekran.aktif{display:flex;flex-direction:column;align-items:center;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-/* GİRİŞ */
 .kart{
-  background:var(--bg2);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:28px;
-  padding:40px 32px;
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:20px;
+  background:var(--bg2);border:1px solid rgba(255,255,255,.07);
+  border-radius:28px;padding:40px 32px;width:100%;
+  display:flex;flex-direction:column;align-items:center;gap:20px;
   box-shadow:0 32px 80px rgba(0,0,0,.6);
 }
-.logo{font-family:var(--font1);font-size:56px;line-height:1;display:flex;gap:2px;margin-bottom:-4px;}
+.logo{font-family:var(--f1);font-size:56px;line-height:1;display:flex;gap:2px;}
 .logo span:first-child{color:var(--red);}
 .logo span:last-child{color:var(--blue);}
-h1{font-family:var(--font1);font-size:34px;letter-spacing:3px;text-align:center;}
-.sub{font-size:13px;color:var(--gray);text-align:center;line-height:1.7;max-width:280px;}
+h1{font-family:var(--f1);font-size:34px;letter-spacing:3px;text-align:center;}
+.sub{font-size:13px;color:var(--gry);text-align:center;line-height:1.7;max-width:280px;}
 
 input{
-  width:100%;background:var(--bg3);
-  border:1.5px solid rgba(255,255,255,.1);
-  border-radius:var(--r);padding:14px 18px;
-  font-size:15px;font-family:var(--font2);
-  color:var(--white);outline:none;
-  transition:border-color var(--t);
+  width:100%;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:var(--r);padding:14px 18px;font-size:15px;font-family:var(--f2);
+  color:var(--wht);outline:none;transition:border-color var(--t);
 }
 input:focus{border-color:var(--blue);}
-input::placeholder{color:var(--gray);}
+input::placeholder{color:var(--gry);}
 
-.divider{
-  width:100%;display:flex;align-items:center;gap:12px;
-  font-size:12px;color:var(--gray);
-}
-.divider::before,.divider::after{
-  content:'';flex:1;height:1px;background:rgba(255,255,255,.08);
-}
+.divider{width:100%;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--gry);}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);}
 
 .btn{
   width:100%;padding:15px;border:none;border-radius:var(--r);
-  font-family:var(--font2);font-size:15px;font-weight:800;
+  font-family:var(--f2);font-size:15px;font-weight:800;
   cursor:pointer;transition:all var(--t);letter-spacing:.3px;
 }
 .btn:hover{transform:translateY(-2px);}
@@ -92,7 +71,7 @@ input::placeholder{color:var(--gray);}
 .btn-red:hover{box-shadow:0 8px 32px rgba(255,45,85,.5);}
 .btn-blue{background:linear-gradient(135deg,var(--blue),#0055d4);color:#fff;box-shadow:0 4px 24px rgba(0,122,255,.3);}
 .btn-sm{width:auto;padding:11px 22px;font-size:14px;}
-.btn-ghost{background:var(--bg3);color:var(--white);border:1.5px solid rgba(255,255,255,.12);}
+.btn-ghost{background:var(--bg3);color:var(--wht);border:1.5px solid rgba(255,255,255,.12);}
 
 .hata{
   background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.35);
@@ -101,28 +80,18 @@ input::placeholder{color:var(--gray);}
 }
 
 /* BEKLEME */
-.spinner{
-  width:52px;height:52px;
-  border:4px solid rgba(255,255,255,.08);
-  border-top-color:var(--red);
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
+.spinner{width:52px;height:52px;border:4px solid rgba(255,255,255,.08);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .kod-kutu{
-  font-family:var(--font1);font-size:52px;letter-spacing:10px;
-  color:var(--yellow);background:var(--bg3);
-  padding:18px 32px;border-radius:var(--r);
-  border:2px dashed rgba(255,214,10,.25);
-  cursor:pointer;transition:all var(--t);
-  user-select:all;
+  font-family:var(--f1);font-size:52px;letter-spacing:10px;
+  color:var(--yel);background:var(--bg3);padding:18px 32px;
+  border-radius:var(--r);border:2px dashed rgba(255,214,10,.25);
+  cursor:pointer;transition:all var(--t);user-select:all;
 }
 .kod-kutu:hover{border-color:rgba(255,214,10,.5);}
-.ipucu{font-size:12px;color:var(--gray);}
 
 /* OYUN */
-#oyunEkrani{max-width:500px;gap:14px;}
-
+#oyun{max-width:500px;gap:14px;}
 .ust{
   display:flex;align-items:center;justify-content:space-between;
   width:100%;background:var(--bg2);border-radius:var(--r);
@@ -131,133 +100,104 @@ input::placeholder{color:var(--gray);}
 .oyuncu{display:flex;flex-direction:column;gap:3px;}
 .oyuncu.sol{align-items:flex-start;}
 .oyuncu.sag{align-items:flex-end;}
-.o-ad{font-size:12px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-.o-skor{font-family:var(--font1);font-size:40px;line-height:1;}
+.o-ad{font-size:12px;color:var(--gry);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.o-skor{font-family:var(--f1);font-size:40px;line-height:1;}
 .oyuncu.aktif .o-ad{color:var(--blue);}
 .oyuncu.aktif .o-skor{color:var(--blue);}
-
 .orta{text-align:center;}
-.tur-no{font-family:var(--font1);font-size:13px;letter-spacing:2px;color:var(--gray);}
-.sira{font-size:11px;color:var(--yellow);font-weight:800;margin-top:2px;}
+.tur-no{font-family:var(--f1);font-size:13px;letter-spacing:2px;color:var(--gry);}
+.sira{font-size:11px;color:var(--yel);font-weight:800;margin-top:2px;}
 
 .harf-alan{
   width:100%;background:var(--bg2);border-radius:var(--r);
-  padding:28px 20px;text-align:center;
-  border:1px solid rgba(255,255,255,.07);
-  min-height:110px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:8px;
+  padding:28px 20px;text-align:center;border:1px solid rgba(255,255,255,.07);
+  min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
 }
-.harf-ekran{
-  font-family:var(--font1);font-size:56px;letter-spacing:10px;
-  min-height:64px;display:flex;align-items:center;flex-wrap:wrap;justify-content:center;
-}
-.harf-bos{font-family:var(--font2);font-size:15px;color:var(--gray);font-style:italic;letter-spacing:0;}
-.harf-sayac{font-size:11px;color:var(--gray);letter-spacing:1px;}
+.harf-ekran{font-family:var(--f1);font-size:56px;letter-spacing:10px;min-height:64px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;}
+.harf-bos{font-family:var(--f2);font-size:15px;color:var(--gry);font-style:italic;letter-spacing:0;}
+.harf-sayac{font-size:11px;color:var(--gry);letter-spacing:1px;}
 
 .klavye{width:100%;display:flex;flex-direction:column;gap:7px;}
 .satir{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;}
 .tus{
   width:44px;height:44px;background:var(--bg3);
-  border:1.5px solid rgba(255,255,255,.09);
-  border-radius:10px;color:var(--white);
-  font-family:var(--font2);font-size:14px;font-weight:700;
+  border:1.5px solid rgba(255,255,255,.09);border-radius:10px;
+  color:var(--wht);font-family:var(--f2);font-size:14px;font-weight:700;
   cursor:pointer;transition:all var(--t);
 }
-.tus:hover:not(:disabled){
-  background:var(--blue);border-color:var(--blue);
-  transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,122,255,.4);
-}
+.tus:hover:not(:disabled){background:var(--blue);border-color:var(--blue);transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,122,255,.4);}
 .tus:active:not(:disabled){transform:translateY(0);}
-.tus.ozel{background:rgba(255,214,10,.07);border-color:rgba(255,214,10,.2);color:var(--yellow);}
+.tus.ozel{background:rgba(255,214,10,.07);border-color:rgba(255,214,10,.2);color:var(--yel);}
 .tus:disabled{opacity:.25;cursor:not-allowed;}
 
 .alt{display:flex;justify-content:center;gap:12px;width:100%;}
 .btn-itiraz{
-  background:linear-gradient(135deg,var(--yellow),#e6a800);
-  color:#111;font-weight:900;padding:13px 28px;
-  border-radius:50px;width:auto;
+  background:linear-gradient(135deg,var(--yel),#e6a800);color:#111;
+  font-weight:900;padding:13px 28px;border-radius:50px;width:auto;
   box-shadow:0 4px 20px rgba(255,214,10,.3);
 }
 .btn-itiraz:disabled{opacity:.25;cursor:not-allowed;transform:none;}
-
-.bilgi{text-align:center;font-size:13px;color:var(--gray);min-height:20px;font-weight:700;}
+.bilgi{text-align:center;font-size:13px;color:var(--gry);min-height:20px;font-weight:700;}
 
 /* OVERLAY */
-.overlay{
-  position:fixed;inset:0;
-  background:rgba(10,10,18,.88);
-  backdrop-filter:blur(10px);
-  display:flex;align-items:center;justify-content:center;
-  z-index:99;animation:fadeUp .3s ease;
-}
+.overlay{position:fixed;inset:0;background:rgba(10,10,18,.88);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:99;}
 .overlay.gizli{display:none;}
 .ov-kutu{
   background:var(--bg2);border:1px solid rgba(255,255,255,.1);
-  border-radius:28px;padding:48px 40px;
-  text-align:center;display:flex;flex-direction:column;
-  gap:14px;align-items:center;max-width:320px;
-  box-shadow:0 40px 100px rgba(0,0,0,.7);
-  animation:pop .4s cubic-bezier(.34,1.56,.64,1);
+  border-radius:28px;padding:48px 40px;text-align:center;
+  display:flex;flex-direction:column;gap:14px;align-items:center;max-width:320px;
+  box-shadow:0 40px 100px rgba(0,0,0,.7);animation:pop .4s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes pop{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
 .ov-emoji{font-size:68px;}
-.ov-kutu h2{font-family:var(--font1);font-size:34px;letter-spacing:2px;}
-.ov-kutu p{color:var(--gray);font-size:14px;line-height:1.7;}
-.skor-ozet{
-  display:flex;gap:20px;background:var(--bg3);
-  padding:14px 28px;border-radius:var(--r);
-  font-family:var(--font1);font-size:30px;
-}
-.pulse{font-size:12px;color:var(--gray);animation:nabiz 1s ease infinite;}
+.ov-kutu h2{font-family:var(--f1);font-size:34px;letter-spacing:2px;}
+.ov-kutu p{color:var(--gry);font-size:14px;line-height:1.7;}
+.skor-ozet{display:flex;gap:20px;background:var(--bg3);padding:14px 28px;border-radius:var(--r);font-family:var(--f1);font-size:28px;}
+.pulse{font-size:12px;color:var(--gry);animation:nabiz 1s ease infinite;}
 @keyframes nabiz{0%,100%{opacity:1}50%{opacity:.3}}
 
 @media(max-width:480px){
   .kart{padding:28px 18px;}
   .harf-ekran{font-size:38px;letter-spacing:6px;}
   .tus{width:36px;height:38px;font-size:12px;}
-  .kod-kutu{font-size:38px;letter-spacing:7px;padding:14px 24px;}
+  .kod-kutu{font-size:38px;letter-spacing:6px;padding:14px 20px;}
 }
 </style>
 </head>
 <body>
 
-<!-- GİRİŞ EKRANI -->
+<!-- GİRİŞ -->
 <div id="giris" class="ekran aktif">
   <div class="kart">
     <div class="logo"><span>K</span><span>S</span></div>
     <h1>Kelime Savaşı</h1>
     <p class="sub">Sırayla harf ekle — Kelimeyi tamamlarsan kaybedersin!</p>
-
     <input id="adInput" type="text" placeholder="Adını gir..." maxlength="14"/>
-
     <button class="btn btn-red" onclick="odaOlustur()">🏠 Oda Oluştur</button>
-
     <div class="divider">ya da</div>
-
-    <input id="kodInput" type="text" placeholder="Oda kodunu gir..." maxlength="20" style="text-align:center;letter-spacing:3px;text-transform:uppercase"/>
+    <input id="kodInput" type="text" placeholder="4 haneli oda kodunu gir..." maxlength="4" style="text-align:center;letter-spacing:6px;text-transform:uppercase;font-size:22px;"/>
     <button class="btn btn-blue" onclick="odayaKatil()">⚔️ Odaya Katıl</button>
-
     <div class="hata" id="hataDiv"></div>
   </div>
 </div>
 
-<!-- BEKLEME EKRANI -->
+<!-- BEKLEME -->
 <div id="bekleme" class="ekran">
   <div class="kart">
     <div class="spinner"></div>
-    <h2 style="font-family:var(--font1);font-size:28px;letter-spacing:2px;">Rakip Bekleniyor...</h2>
-    <p style="color:var(--gray);font-size:13px;">Bu kodu arkadaşına gönder:</p>
-    <div class="kod-kutu" id="kodGoster" onclick="koduKopyala(this)" title="Kopyalamak için tıkla">------</div>
-    <button class="btn btn-ghost btn-sm" onclick="koduKopyala(document.getElementById('kodGoster'))">📋 Kopyala</button>
-    <p class="ipucu">Arkadaşın bu kodu girince oyun başlar</p>
+    <h2 style="font-family:var(--f1);font-size:28px;letter-spacing:2px;">Rakip Bekleniyor...</h2>
+    <p style="color:var(--gry);font-size:13px;">Bu 4 haneli kodu arkadaşına gönder:</p>
+    <div class="kod-kutu" id="kodGoster" onclick="koduKopyala()" title="Kopyalamak için tıkla">----</div>
+    <button class="btn btn-ghost btn-sm" onclick="koduKopyala()">📋 Kopyala</button>
+    <p style="font-size:12px;color:var(--gry);">Arkadaşın bu kodu girince oyun başlar</p>
   </div>
 </div>
 
-<!-- OYUN EKRANI -->
+<!-- OYUN -->
 <div id="oyun" class="ekran">
   <div class="ust">
     <div class="oyuncu sol" id="ok1">
-      <div class="o-ad" id="ad1">Oyuncu 1</div>
+      <div class="o-ad" id="ad1">Sen</div>
       <div class="o-skor" id="skor1">0</div>
     </div>
     <div class="orta">
@@ -265,7 +205,7 @@ input::placeholder{color:var(--gray);}
       <div class="sira" id="siraDiv">—</div>
     </div>
     <div class="oyuncu sag" id="ok2">
-      <div class="o-ad" id="ad2">Oyuncu 2</div>
+      <div class="o-ad" id="ad2">Rakip</div>
       <div class="o-skor" id="skor2">0</div>
     </div>
   </div>
@@ -333,9 +273,24 @@ input::placeholder{color:var(--gray);}
 </div>
 
 <script>
-// =============================================
+// ================================================
+// FIREBASE AYARLARI
+// ================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBwNJei_4boidgtsz7gHI2qLn5qBM13ScA",
+  authDomain: "kelime-savasi-1c464.firebaseapp.com",
+  databaseURL: "https://kelime-savasi-1c464-default-rtdb.firebaseio.com",
+  projectId: "kelime-savasi-1c464",
+  storageBucket: "kelime-savasi-1c464.firebasestorage.app",
+  messagingSenderId: "107119334082",
+  appId: "1:107119334082:web:18d1be8b85fb0c72b5a15b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ================================================
 // TÜRKÇE KELİME LİSTESİ
-// =============================================
+// ================================================
 const kelimeler = [
   "araba","armut","aslan","ayak","balik","bardak","bebek","bisiklet",
   "bulut","cadde","ceket","çanta","çiçek","deniz","dondurma","dünya",
@@ -351,353 +306,336 @@ const kelimeler = [
   "sinema","tiyatro","uzman","vitrin","yazar","anahtar","bilgisayar",
   "çikolata","davul","ekmek","fırın","havlu","iskemle","kavanoz",
   "lokanta","müzik","parfüm","robot","sözlük","tatil","vanilya",
-  "akşam","bahar","borsa","çoban","dağ","erik","fiş","gece","hava",
+  "akşam","bahar","borsa","çoban","dağ","erik","gece","hava",
   "inci","kovan","lahana","mantar","nar","palto","rende","süt","taksi",
-  "umut","vadi","yaban","zeytin","atlas","boya","cam","dal","ev",
-  "fil","gül","has","ip","jeton","kaz","lale","mor","nal","ot",
-  "pul","renk","ses","top","un","var","yay","zil"
+  "umut","vadi","yaban","atlas","boya","cam","dal","ev","fil","gül",
+  "has","ip","kaz","lale","mor","nal","ot","pul","renk","ses","top",
+  "un","yay","zil","alem","boru","cuma","dere","efe","fal","han",
+  "ilan","jan","kap","lan","mum","nane","oje","par","raf","sol",
+  "tam","uğur","vay","yem","zam","abla","baba","dede","nine","teyze",
+  "amca","dayı","hala","yenge","kuzen","torun","gelin","damat"
 ];
 
-function kelimeVarMi(prefix) {
-  return kelimeler.some(k => k.startsWith(prefix));
-}
-function tamKelimeMi(s) {
-  return kelimeler.includes(s) && s.length >= 3;
-}
+function kelimeVarMi(p){ return kelimeler.some(k=>k.startsWith(p)); }
+function tamKelimeMi(s){ return kelimeler.includes(s) && s.length>=3; }
 
-// =============================================
-// OYUN DURUMU
-// =============================================
-let peer, conn;
-let benim = { ad: '', skor: 0 };
-let rakip = { ad: '', skor: 0 };
-let mevcutHarfler = '';
-let bendeSira = false;
-let tur = 1;
-let host = false; // Odayı ben mi kurdum?
+// ================================================
+// OYUN DEĞİŞKENLERİ
+// ================================================
+let odaKodu = '';
+let benimRolum = ''; // 'host' veya 'guest'
+let benimAdim = '';
+let odaRef = null;
+let listeners = [];
 
-// =============================================
-// PEER BAĞLANTI
-// =============================================
-function yeniPeer(cb) {
-  // PeerJS ücretsiz cloud sunucusunu kullan
-  peer = new Peer(undefined, {
-    host: '0.peerjs.com',
-    port: 443,
-    path: '/',
-    secure: true
-  });
-  peer.on('open', id => cb(id));
-  peer.on('error', e => hataGoster('Bağlantı hatası: ' + e.type));
+// ================================================
+// 4 HANELİ RANDOM KOD ÜRET
+// ================================================
+function kodUret(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let k = '';
+  for(let i=0;i<4;i++) k += chars[Math.floor(Math.random()*chars.length)];
+  return k;
 }
 
-// =============================================
-// ODA OLUŞTUR (Host)
-// =============================================
-function odaOlustur() {
+// ================================================
+// ODA OLUŞTUR
+// ================================================
+async function odaOlustur(){
   const ad = document.getElementById('adInput').value.trim();
-  if (!ad) { hataGoster('Lütfen bir ad gir!'); return; }
-  benim.ad = ad;
-  host = true;
+  if(!ad){ hataGoster('Lütfen bir ad gir!'); return; }
+  benimAdim = ad;
+  benimRolum = 'host';
 
-  yeniPeer(id => {
-    // Tam Peer ID'yi kod olarak göster
-    document.getElementById('kodGoster').textContent = id;
-    document.getElementById('kodGoster').style.fontSize = '18px';
-    document.getElementById('kodGoster').style.letterSpacing = '2px';
-    ekran('bekleme');
+  // Benzersiz kod bul
+  let kod;
+  do {
+    kod = kodUret();
+    const snap = await db.ref('odalar/'+kod).get();
+    if(!snap.exists()) break;
+  } while(true);
 
-    // Rakibin bağlanmasını bekle
-    peer.on('connection', c => {
-      conn = c;
-      baglantiyiAyarla();
-    });
+  odaKodu = kod;
+  odaRef = db.ref('odalar/'+kod);
+
+  // Odayı oluştur
+  await odaRef.set({
+    host: { ad, skor: 0 },
+    durum: 'bekleme',
+    harfler: '',
+    sira: 'host',
+    tur: 1,
+    olusturulma: Date.now()
+  });
+
+  // Bağlantı kesilince odayı sil
+  odaRef.onDisconnect().remove();
+
+  document.getElementById('kodGoster').textContent = kod;
+  ekran('bekleme');
+
+  // Guest'in katılmasını bekle
+  const ref = odaRef.child('guest');
+  const unsub = ref.on('value', snap => {
+    if(snap.exists()){
+      ref.off('value', unsub);
+      oyunuBaslat();
+    }
   });
 }
 
-// =============================================
-// ODAYA KATIL (Guest)
-// =============================================
-function odayaKatil() {
+// ================================================
+// ODAYA KATIL
+// ================================================
+async function odayaKatil(){
   const ad = document.getElementById('adInput').value.trim();
   const kod = document.getElementById('kodInput').value.trim().toUpperCase();
-  if (!ad) { hataGoster('Lütfen bir ad gir!'); return; }
-  if (kod.length < 6) { hataGoster('Geçerli bir oda kodu gir!'); return; }
-  benim.ad = ad;
-  host = false;
+  if(!ad){ hataGoster('Lütfen bir ad gir!'); return; }
+  if(kod.length !== 4){ hataGoster('4 haneli kodu gir!'); return; }
 
-  yeniPeer(() => {
-    // Tam Peer ID ile bağlan
-    conn = peer.connect(kod, { reliable: true });
-    conn.on('open', () => {
-      // Bağlandı! Adımızı gönder
-      gonderi({ tip: 'katildi', ad: benim.ad });
-      baglantiyiAyarla();
-      // Host oyunu başlatacak
-    });
-    conn.on('error', () => hataGoster('Bağlanamadı! Kodu kontrol et.'));
-  });
+  const snap = await db.ref('odalar/'+kod).get();
+  if(!snap.exists()){ hataGoster('Oda bulunamadı! Kodu kontrol et.'); return; }
+  const data = snap.val();
+  if(data.durum !== 'bekleme'){ hataGoster('Bu oda dolu veya oyun başladı!'); return; }
+
+  benimAdim = ad;
+  benimRolum = 'guest';
+  odaKodu = kod;
+  odaRef = db.ref('odalar/'+kod);
+
+  // Guest olarak katıl
+  await odaRef.child('guest').set({ ad, skor: 0 });
+  odaRef.onDisconnect().remove();
+
+  oyunuBaslat();
 }
 
-// =============================================
-// BAĞLANTI AYARLA
-// =============================================
-function baglantiyiAyarla() {
-  conn.on('data', mesajAl);
-  conn.on('close', () => {
-    alert('Rakip bağlantısı kesildi!');
-    location.reload();
-  });
-
-  if (host) {
-    // Host rakibin adını bekler, sonra oyunu başlatır
-    // (katildi mesajı gelince oyunBaslat çağrılır)
-  }
-}
-
-// =============================================
-// MESAJ GÖNDER / AL
-// =============================================
-function gonderi(data) {
-  if (conn && conn.open) conn.send(data);
-}
-
-function mesajAl(data) {
-  switch(data.tip) {
-    case 'katildi':
-      rakip.ad = data.ad;
-      if (host) {
-        // Oyunu başlat — host ilk oynar
-        bendeSira = true;
-        oyunBaslat();
-        gonderi({ tip: 'oyunBasladi', hostAd: benim.ad, guestAd: rakip.ad });
-      }
-      break;
-
-    case 'oyunBasladi':
-      rakip.ad = data.hostAd;
-      // Misafir ikinci oynar
-      bendeSira = false;
-      oyunBaslat();
-      break;
-
-    case 'harfEklendi':
-      mevcutHarfler = data.harfler;
-      harfEkranGuncelle();
-      bendeSira = true;
-      klavyeAktif(true);
-      siraGoster();
-      bilgi(`${rakip.ad} "${data.harf.toUpperCase()}" ekledi`);
-      break;
-
-    case 'turBitti':
-      turBittiGoster(data);
-      break;
-
-    case 'yeniTur':
-      mevcutHarfler = '';
-      tur = data.tur;
-      harfEkranGuncelle();
-      document.getElementById('turNo').textContent = `TUR ${tur}`;
-      bendeSira = data.ilkOyuncu === benim.ad;
-      klavyeAktif(bendeSira);
-      siraGoster();
-      document.getElementById('turOverlay').classList.add('gizli');
-      break;
-  }
-}
-
-// =============================================
-// OYUN BAŞLAT
-// =============================================
-function oyunBaslat() {
+// ================================================
+// OYUNU BAŞLAT
+// ================================================
+function oyunuBaslat(){
   ekran('oyun');
-  mevcutHarfler = '';
-  tur = 1;
 
-  // Adları yerleştir (ben solda, rakip sağda)
-  document.getElementById('ad1').textContent = benim.ad;
-  document.getElementById('ad2').textContent = rakip.ad;
-  document.getElementById('skor1').textContent = '0';
-  document.getElementById('skor2').textContent = '0';
-  document.getElementById('turNo').textContent = 'TUR 1';
-
-  harfEkranGuncelle();
-  klavyeAktif(bendeSira);
-  siraGoster();
+  // Firebase'i dinle
+  odaRef.on('value', snap => {
+    if(!snap.exists()){
+      alert('Rakip ayrıldı! Oyun bitti.');
+      location.reload();
+      return;
+    }
+    const d = snap.val();
+    guncelle(d);
+  });
 }
 
-// =============================================
-// HARF EKLE
-// =============================================
-function harf(h) {
-  if (!bendeSira) { bilgi('Sıra sende değil!', true); return; }
+// ================================================
+// FIREBASE'DEN GELEN VERİYİ EKRANA YANSIT
+// ================================================
+function guncelle(d){
+  if(!d.host || !d.guest) return;
 
-  const yeni = mevcutHarfler + h;
+  const benimData   = d[benimRolum];
+  const rakipRolum  = benimRolum === 'host' ? 'guest' : 'host';
+  const rakipData   = d[rakipRolum];
 
-  if (!kelimeVarMi(yeni)) {
-    // Geçersiz harf — ben kaybettim
-    bendeSira = false;
-    klavyeAktif(false);
-    const data = { tip: 'turBitti', sebep: 'gecersizHarf', kaybeden: benim.ad, harfler: yeni };
-    gonderi(data);
-    turBittiGoster(data);
-    return;
-  }
+  // Adlar & skorlar
+  document.getElementById('ad1').textContent   = benimAdim;
+  document.getElementById('skor1').textContent = benimData.skor || 0;
+  document.getElementById('ad2').textContent   = rakipData.ad;
+  document.getElementById('skor2').textContent = rakipData.skor || 0;
 
-  if (tamKelimeMi(yeni)) {
-    // Kelimeyi tamamladım — ben kaybettim
-    bendeSira = false;
-    klavyeAktif(false);
-    const data = { tip: 'turBitti', sebep: 'tamamlandi', kaybeden: benim.ad, kelime: yeni };
-    gonderi(data);
-    turBittiGoster(data);
-    return;
-  }
+  // Tur
+  document.getElementById('turNo').textContent = `TUR ${d.tur || 1}`;
 
-  // Normal — rakibe gönder
-  mevcutHarfler = yeni;
-  harfEkranGuncelle();
-  bendeSira = false;
-  klavyeAktif(false);
-  siraGoster();
-  gonderi({ tip: 'harfEklendi', harf: h, harfler: yeni });
-}
+  // Harfler
+  harfEkranGuncelle(d.harfler || '');
 
-// =============================================
-// İTİRAZ ET
-// =============================================
-function itirazEt() {
-  if (bendeSira) { bilgi('Kendi sıranda itiraz edemezsin!', true); return; }
-  if (!mevcutHarfler) { bilgi('Henüz harf yok!', true); return; }
+  // Sıra
+  const bendeSira = d.sira === benimRolum;
+  klavyeAktif(bendeSira, d.harfler);
+  siraGoster(bendeSira, rakipData.ad, d.harfler);
 
-  // Bu harflerle devam eden kelime var mı?
-  const devamVar = kelimeler.some(k => k.startsWith(mevcutHarfler) && k !== mevcutHarfler);
-
-  let data;
-  if (devamVar) {
-    // Kelime var — itiraz eden (ben) kaybettim
-    data = { tip: 'turBitti', sebep: 'itiraz', kaybeden: benim.ad, kelimeVar: true };
+  // Tur sonu overlay
+  if(d.turSonu){
+    turOverlayGoster(d.turSonu, benimData.skor || 0, rakipData.skor || 0, rakipData.ad);
   } else {
-    // Kelime yok — rakip kaybetti
-    data = { tip: 'turBitti', sebep: 'itiraz', kaybeden: rakip.ad, kelimeVar: false };
-  }
-  gonderi(data);
-  turBittiGoster(data);
-}
-
-// =============================================
-// TUR BİTTİ
-// =============================================
-function turBittiGoster(data) {
-  klavyeAktif(false);
-
-  const bendKazandim = data.kaybeden !== benim.ad;
-
-  // Skor güncelle
-  if (bendKazandim) {
-    benim.skor++;
-    document.getElementById('skor1').textContent = benim.skor;
-  } else {
-    rakip.skor++;
-    document.getElementById('skor2').textContent = rakip.skor;
-  }
-
-  // Overlay
-  document.getElementById('ovEmoji').textContent = bendKazandim ? '🏆' : '💀';
-  const baslik = document.getElementById('ovBaslik');
-  baslik.textContent = bendKazandim ? 'KAZANDIN!' : 'KAYBETTİN!';
-  baslik.style.color = bendKazandim ? 'var(--green)' : 'var(--red)';
-
-  let acik = '';
-  if (data.sebep === 'tamamlandi') acik = `"${data.kelime?.toUpperCase()}" kelimesini tamamladı!`;
-  else if (data.sebep === 'gecersizHarf') acik = `"${data.harfler?.toUpperCase()}" ile başlayan kelime yok!`;
-  else if (data.sebep === 'itiraz') acik = data.kelimeVar ? 'İtiraz haksız — kelime vardı!' : 'İtiraz haklı — kelime yoktu!';
-  document.getElementById('ovAciklama').textContent = acik;
-
-  document.getElementById('ovSkor').innerHTML =
-    `<span>${benim.ad}: ${benim.skor}</span><span style="color:var(--gray)">—</span><span>${rakip.ad}: ${rakip.skor}</span>`;
-
-  document.getElementById('turOverlay').classList.remove('gizli');
-
-  // 3 saniye sonra yeni tur
-  setTimeout(() => {
-    tur++;
-    mevcutHarfler = '';
-    harfEkranGuncelle();
-    document.getElementById('turNo').textContent = `TUR ${tur}`;
     document.getElementById('turOverlay').classList.add('gizli');
+  }
+}
 
+// ================================================
+// HARF EKLE
+// ================================================
+async function harf(h){
+  const snap = await odaRef.get();
+  const d = snap.val();
+  if(!d || d.sira !== benimRolum){ bilgi('Sıra sende değil!', true); return; }
+  if(d.turSonu) return;
+
+  const yeni = (d.harfler || '') + h;
+
+  if(!kelimeVarMi(yeni)){
+    // Geçersiz — ben kaybettim
+    await kaybettim(d, 'gecersizHarf', yeni, null);
+    return;
+  }
+  if(tamKelimeMi(yeni)){
+    // Kelime tamamlandı — ben kaybettim
+    await kaybettim(d, 'tamamlandi', null, yeni);
+    return;
+  }
+
+  // Normal harf — sırayı değiştir
+  const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+  await odaRef.update({ harfler: yeni, sira: rakipRolum });
+}
+
+// ================================================
+// İTİRAZ ET
+// ================================================
+async function itirazEt(){
+  const snap = await odaRef.get();
+  const d = snap.val();
+  if(!d) return;
+  if(d.sira === benimRolum){ bilgi('Kendi sıranda itiraz edemezsin!', true); return; }
+  if(!d.harfler){ bilgi('Henüz harf yok!', true); return; }
+  if(d.turSonu) return;
+
+  const devamVar = kelimeler.some(k => k.startsWith(d.harfler) && k !== d.harfler);
+  const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+
+  if(devamVar){
+    // Kelime var — ben kaybettim
+    await kaybettim(d, 'itirazHaksiz', null, null);
+  } else {
+    // Kelime yok — rakip kaybetti, ben kazandım
+    await rakipKaybetti(d, 'itirazHakli');
+  }
+}
+
+// ================================================
+// KAYIP / KAZANIM İŞLEMLERİ
+// ================================================
+async function kaybettim(d, sebep, gecersizHarfler, tamamlananKelime){
+  const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+  const rakipSkor  = (d[rakipRolum].skor || 0) + 1;
+
+  await odaRef.update({
+    [`${rakipRolum}/skor`]: rakipSkor,
+    turSonu: { kaybeden: benimRolum, sebep, gecersizHarfler, tamamlananKelime, zaman: Date.now() }
+  });
+  yeniTurZamanla(d);
+}
+
+async function rakipKaybetti(d, sebep){
+  const benimSkor = (d[benimRolum].skor || 0) + 1;
+  const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+
+  await odaRef.update({
+    [`${benimRolum}/skor`]: benimSkor,
+    turSonu: { kaybeden: rakipRolum, sebep, zaman: Date.now() }
+  });
+  yeniTurZamanla(d);
+}
+
+function yeniTurZamanla(d){
+  // Sadece host yeni turu başlatır (çift yazma önleme)
+  if(benimRolum !== 'host') return;
+  setTimeout(async () => {
+    const snap = await odaRef.get();
+    if(!snap.exists()) return;
+    const cur = snap.val();
     // Kaybeden başlar
-    bendeSira = data.kaybeden === benim.ad;
-    klavyeAktif(bendeSira);
-    siraGoster();
-
-    gonderi({ tip: 'yeniTur', tur, ilkOyuncu: data.kaybeden });
+    const kaybeden = cur.turSonu?.kaybeden || 'host';
+    await odaRef.update({
+      harfler: '',
+      sira: kaybeden,
+      tur: (cur.tur || 1) + 1,
+      turSonu: null
+    });
   }, 3000);
 }
 
-// =============================================
+// ================================================
+// TUR OVERLAY
+// ================================================
+function turOverlayGoster(turSonu, benimSkor, rakipSkor, rakipAd){
+  const bendKazandim = turSonu.kaybeden !== benimRolum;
+
+  document.getElementById('ovEmoji').textContent = bendKazandim ? '🏆' : '💀';
+  const bas = document.getElementById('ovBaslik');
+  bas.textContent = bendKazandim ? 'KAZANDIN!' : 'KAYBETTİN!';
+  bas.style.color  = bendKazandim ? 'var(--grn)' : 'var(--red)';
+
+  let acik = '';
+  if(turSonu.sebep === 'tamamlandi')    acik = `"${turSonu.tamamlananKelime?.toUpperCase()}" kelimesi tamamlandı!`;
+  else if(turSonu.sebep === 'gecersizHarf') acik = `"${turSonu.gecersizHarfler?.toUpperCase()}" ile başlayan kelime yok!`;
+  else if(turSonu.sebep === 'itirazHakli')  acik = 'İtiraz haklıydı — kelime yoktu!';
+  else if(turSonu.sebep === 'itirazHaksiz') acik = 'İtiraz haksızdı — kelime vardı!';
+  document.getElementById('ovAciklama').textContent = acik;
+
+  document.getElementById('ovSkor').innerHTML =
+    `<span>${benimAdim}: ${benimSkor}</span><span style="color:var(--gry)">—</span><span>${rakipAd}: ${rakipSkor}</span>`;
+
+  document.getElementById('turOverlay').classList.remove('gizli');
+}
+
+// ================================================
 // YARDIMCI FONKSİYONLAR
-// =============================================
-function ekran(id) {
-  document.querySelectorAll('.ekran').forEach(e => e.classList.remove('aktif'));
+// ================================================
+function ekran(id){
+  document.querySelectorAll('.ekran').forEach(e=>e.classList.remove('aktif'));
   document.getElementById(id).classList.add('aktif');
 }
 
-function harfEkranGuncelle() {
+function harfEkranGuncelle(h){
   const el = document.getElementById('harfEkran');
-  const sayac = document.getElementById('harfSayac');
-  if (!mevcutHarfler) {
-    el.innerHTML = '<span class="harf-bos">Henüz harf yok...</span>';
-    sayac.textContent = '0 harf';
-  } else {
-    el.innerHTML = mevcutHarfler.toUpperCase().split('').join('');
-    sayac.textContent = `${mevcutHarfler.length} harf`;
-  }
+  const sc = document.getElementById('harfSayac');
+  if(!h){ el.innerHTML='<span class="harf-bos">Henüz harf yok...</span>'; sc.textContent='0 harf'; }
+  else  { el.textContent = h.toUpperCase(); sc.textContent=`${h.length} harf`; }
 }
 
-function klavyeAktif(aktif) {
-  document.querySelectorAll('.tus').forEach(t => t.disabled = !aktif);
-  document.getElementById('itirazBtn').disabled = aktif || !mevcutHarfler;
+function klavyeAktif(aktif, harfler){
+  document.querySelectorAll('.tus').forEach(t=>t.disabled=!aktif);
+  document.getElementById('itirazBtn').disabled = aktif || !harfler;
 }
 
-function siraGoster() {
-  const el = document.getElementById('siraDiv');
-  el.textContent = bendeSira ? '⚡ SENİN SIRAN' : `⏳ ${rakip.ad}'nın Sırası`;
-
+function siraGoster(bendeSira, rakipAd, harfler){
+  document.getElementById('siraDiv').textContent = bendeSira ? '⚡ SENİN SIRAN' : `⏳ ${rakipAd}'nın Sırası`;
   document.getElementById('ok1').classList.toggle('aktif', bendeSira);
   document.getElementById('ok2').classList.toggle('aktif', !bendeSira);
 }
 
-function bilgi(mesaj, uyari = false) {
+function bilgi(mesaj, uyari=false){
   const el = document.getElementById('bilgiDiv');
   el.textContent = mesaj;
-  el.style.color = uyari ? '#ff6b85' : 'var(--gray)';
-  setTimeout(() => el.textContent = '', 2500);
+  el.style.color = uyari ? '#ff6b85' : 'var(--gry)';
+  setTimeout(()=>el.textContent='', 2500);
 }
 
-function hataGoster(mesaj) {
+function hataGoster(mesaj){
   const el = document.getElementById('hataDiv');
-  el.textContent = mesaj;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3000);
+  el.textContent = mesaj; el.style.display='block';
+  setTimeout(()=>el.style.display='none', 3000);
 }
 
-function koduKopyala(el) {
-  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+function koduKopyala(){
+  const kod = document.getElementById('kodGoster').textContent;
+  navigator.clipboard.writeText(kod).then(()=>{
+    const el = document.getElementById('kodGoster');
     const orig = el.textContent;
-    el.textContent = '✅ Kopyalandı!';
-    setTimeout(() => el.textContent = orig, 2000);
+    el.textContent='✅ Kopyalandı!';
+    el.style.fontSize='24px';
+    setTimeout(()=>{ el.textContent=orig; el.style.fontSize=''; },2000);
   });
 }
 
-// Fiziksel klavye desteği
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('oyun').classList.contains('aktif')) return;
+// Fiziksel klavye
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('oyun').classList.contains('aktif')) return;
   const h = e.key.toLowerCase();
   const gecerli = 'abcçdefgğhıijklmnoöprsştuüvyz';
-  if (h.length === 1 && gecerli.includes(h)) harf(h);
+  if(h.length===1 && gecerli.includes(h)) harf(h);
 });
 </script>
 </body>
