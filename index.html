@@ -401,9 +401,10 @@ function odaOlustur() {
   host = true;
 
   yeniPeer(id => {
-    // Oda kodu = Peer ID'nin ilk 8 karakteri (büyük harf)
-    const kod = id.substring(0, 8).toUpperCase();
-    document.getElementById('kodGoster').textContent = kod;
+    // Tam Peer ID'yi kod olarak göster
+    document.getElementById('kodGoster').textContent = id;
+    document.getElementById('kodGoster').style.fontSize = '18px';
+    document.getElementById('kodGoster').style.letterSpacing = '2px';
     ekran('bekleme');
 
     // Rakibin bağlanmasını bekle
@@ -426,12 +427,7 @@ function odayaKatil() {
   host = false;
 
   yeniPeer(() => {
-    // Host'un Peer ID'sini bul (kod = ID'nin ilk 8 harfi büyük harf)
-    // Gerçek ID'yi bulmak için host'un tam ID'sine ihtiyaç var
-    // Çözüm: Host kendi tam ID'sini kod olarak gösterir ama kısaltır
-    // Misafir bu kodu kullanarak bağlanır
-    // NOT: PeerJS'te ID tahmin edilemez, bu yüzden tam ID'yi kullanacağız
-    // Kullanıcı tam kodu kopyalar
+    // Tam Peer ID ile bağlan
     conn = peer.connect(kod, { reliable: true });
     conn.on('open', () => {
       // Bağlandı! Adımızı gönder
