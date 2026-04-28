@@ -93,20 +93,23 @@ input::placeholder{color:var(--gry);}
 /* ÇARK VE KUTULAR */
 #carkArea { position: relative; width: 220px; height: 220px; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #cark { 
-  position: relative; width: 180px; height: 180px; border-radius: 50%; border: 6px solid var(--bg3);
+  position: relative; width: 190px; height: 190px; border-radius: 50%; border: 6px solid var(--bg3);
   background: conic-gradient(
-    var(--red) 0 45deg, var(--blue) 45deg 90deg, var(--yel) 90deg 135deg, 
+    from -22.5deg,
+    var(--red) 0 45deg, var(--blue) 45deg 90deg, var(--yel) 90deg 135deg,
     var(--grn) 135deg 180deg, #9333ea 180deg 225deg, var(--wht) 225deg 270deg,
     #ff9500 270deg 315deg, #5856d6 315deg 360deg
   );
   transition: transform 3s cubic-bezier(0.1, 0, 0.2, 1);
-  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.1);
 }
 .cark-etiket {
   position: absolute; width: 100%; height: 100%;
-  text-align: center; font-family: var(--f1); font-size: 14px; color: #fff;
-  padding-top: 10px; transform-origin: center; pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  display: flex; justify-content: center;
+  font-family: var(--f1); font-size: 16px; color: #fff;
+  padding-top: 15px; transform-origin: center; pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  font-weight: bold;
 }
 #carkPointer {
   position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
@@ -456,9 +459,6 @@ async function odaOlustur(){
   document.getElementById('kodGoster').textContent = kod;
   ekran('bekleme');
 
-  // Çark etiketlerini oluştur (Sadece görsel amaçlı)
-  etiketleriOlustur();
-
   // Guest'in katılmasını bekle
   const ref = odaRef.child('guest');
   const unsub = ref.on('value', snap => {
@@ -502,7 +502,7 @@ function etiketleriOlustur(){
   carkDilimleri.forEach((metin, i) => {
     const el = document.createElement('div');
     el.className = 'cark-etiket';
-    el.style.transform = `rotate(${i * 45 + 22.5}deg)`;
+    el.style.transform = `rotate(${i * 45}deg)`;
     el.textContent = metin;
     cark.appendChild(el);
   });
@@ -513,6 +513,8 @@ function etiketleriOlustur(){
 // ================================================
 function oyunuBaslat(){
   ekran('oyun');
+  // Her iki oyuncu için de çark etiketlerini oluştur
+  etiketleriOlustur();
 
   // Firebase'i dinle
   const oyunuDinle = odaRef.on('value', snap => {
@@ -596,7 +598,7 @@ async function carkCevir(){
   // Önemli: Açıyı üstüne ekle ki her zaman ileri dönsün ve senkron olsun
   const turAtla = 1800 + Math.floor(Math.random() * 360);
   const yeniAci = (d.carkAci || 0) + turAtla;
-  const dilimIndex = Math.floor((360 - (yeniAci % 360)) / (360 / carkDilimleri.length)) % 8;
+  const dilimIndex = Math.floor(((360 - (yeniAci % 360)) + 22.5) / 45) % 8;
   const carkDegeri = carkDilimleri[dilimIndex];
 
   await odaRef.update({ carkAci: yeniAci, carkDurum: 'dönüyor', carkDegeri: null });
