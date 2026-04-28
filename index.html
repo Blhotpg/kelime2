@@ -91,15 +91,15 @@ input::placeholder{color:var(--gry);}
 .kod-kutu:hover{border-color:rgba(255,214,10,.5);}
 
 /* ÇARK VE KUTULAR */
-#carkArea { position: relative; width: 160px; height: 160px; margin: 10px auto; }
+#carkArea { position: relative; width: 200px; height: 200px; margin: 20px auto; }
 #cark { 
-  width: 100%; height: 100%; border-radius: 50%; border: 5px solid var(--bg3);
-  background: conic-gradient(var(--red) 0 72deg, var(--blue) 72deg 144deg, var(--yel) 144deg 216deg, var(--grn) 216deg 288deg, #9333ea 288deg 360deg);
+  width: 100%; height: 100%; border-radius: 50%; border: 8px solid var(--bg3);
+  background: conic-gradient(var(--red) 0 60deg, var(--blue) 60deg 120deg, var(--yel) 120deg 180deg, var(--grn) 180deg 240deg, #9333ea 240deg 300deg, var(--wht) 300deg 360deg);
   transition: transform 3s cubic-bezier(0.1, 0, 0.2, 1);
 }
 #carkPointer {
   position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-  width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid var(--wht); z-index: 10;
+  width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid var(--wht); z-index: 10;
 }
 .soru-alani { background: var(--bg3); padding: 15px; border-radius: var(--r); margin-bottom: 15px; text-align: center; border-left: 4px solid var(--yel); }
 .soru-metni { font-size: 14px; color: var(--yel); font-weight: 800; text-transform: uppercase; }
@@ -111,7 +111,11 @@ input::placeholder{color:var(--gry);}
   font-family: var(--f1); font-size: 30px; color: var(--wht); transition: var(--t);
 }
 .kutu.acik { background: var(--wht); color: var(--bg); border-color: var(--wht); transform: rotateY(360deg); }
+.kutu.sonuc { background: var(--yel); color: var(--bg); border-color: var(--yel); } /* Çark sonucu için */
 .kutu.bosluk { background: transparent; border: none; width: 20px; }
+.cark-sonuc { font-family: var(--f1); font-size: 36px; color: var(--wht); margin-top: 10px; }
+.cark-sonuc.pas { color: var(--red); }
+.cark-sonuc.iflas { color: var(--red); }
 
 /* OYUN */
 #oyun{max-width:500px;gap:14px;}
@@ -132,12 +136,6 @@ input::placeholder{color:var(--gry);}
 .orta{text-align:center;}
 .tur-no{font-family:var(--f1);font-size:13px;letter-spacing:2px;color:var(--gry);}
 .sira{font-size:11px;color:var(--yel);font-weight:800;margin-top:2px;}
-
-.harf-alan{
-  width:100%;background:var(--bg2);border-radius:var(--r);
-  padding:28px 20px;text-align:center;border:1px solid rgba(255,255,255,.07);
-  min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-}
 
 .klavye{width:100%;display:flex;flex-direction:column;gap:7px;}
 .satir{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;}
@@ -233,9 +231,16 @@ input::placeholder{color:var(--gry);}
     </div>
   </div>
 
-  <div class="harf-alan">
-    <div class="harf-ekran" id="harfEkran"><span class="harf-bos">Henüz harf yok...</span></div>
-    <div class="harf-sayac" id="harfSayac">0 harf</div>
+  <div class="soru-alani">
+    <div class="soru-metni" id="soruMetni">İpucu Yükleniyor...</div>
+  </div>
+
+  <div class="kutular" id="kelimeKutulari"></div>
+
+  <div id="carkArea">
+    <div id="carkPointer"></div>
+    <div id="cark"></div>
+    <div class="cark-sonuc" id="carkSonuc"></div>
   </div>
 
   <div class="klavye">
@@ -245,26 +250,22 @@ input::placeholder{color:var(--gry);}
       <button class="tus" onclick="harfTahmin('R')">R</button>
       <button class="tus" onclick="harfTahmin('T')">T</button>
       <button class="tus" onclick="harfTahmin('Y')">Y</button>
-      <button class="tus" onclick="harfTahmin('U')">U</button>
-      <button class="tus" onclick="harfTahmin('I')">I</button>
-      <button class="tus" onclick="harfTahmin('O')">O</button>
-      <button class="tus" onclick="harfTahmin('P')">P</button>
+      <button class="tus" onclick="harfTahmin('U')">U</button> <button class="tus" onclick="harfTahmin('I')">I</button> <button class="tus" onclick="harfTahmin('O')">O</button> <button class="tus" onclick="harfTahmin('P')">P</button>
     </div>
     <div class="satir">
-      <button class="tus" onclick="harfTahmin('A')">A</button>
-      <button class="tus" onclick="harfTahmin('S')">S</button>
-      <button class="tus" onclick="harfTahmin('D')">D</button>
-      <button class="tus" onclick="harfTahmin('F')">F</button>
-      <button class="tus" onclick="harfTahmin('G')">G</button>
-      <button class="tus" onclick="harfTahmin('H')">H</button>
-      <button class="tus" onclick="harfTahmin('J')">J</button>
-      <button class="tus" onclick="harfTahmin('K')">K</button>
-      <button class="tus" onclick="harfTahmin('L')">L</button>
+      <button class="tus" onclick="harfTahmin('A')">A</button> <button class="tus" onclick="harfTahmin('S')">S</button> <button class="tus" onclick="harfTahmin('D')">D</button> <button class="tus" onclick="harfTahmin('F')">F</button> <button class="tus" onclick="harfTahmin('G')">G</button> <button class="tus" onclick="harfTahmin('H')">H</button> <button class="tus" onclick="harfTahmin('J')">J</button> <button class="tus" onclick="harfTahmin('K')">K</button> <button class="tus" onclick="harfTahmin('L')">L</button>
+    </div>
+    <div class="satir">
+      <button class="tus" onclick="harfTahmin('Z')">Z</button> <button class="tus" onclick="harfTahmin('C')">C</button> <button class="tus" onclick="harfTahmin('V')">V</button> <button class="tus" onclick="harfTahmin('B')">B</button> <button class="tus" onclick="harfTahmin('N')">N</button> <button class="tus" onclick="harfTahmin('M')">M</button>
+    </div>
+    <div class="satir">
+      <button class="tus ozel" onclick="harfTahmin('Ç')">Ç</button> <button class="tus ozel" onclick="harfTahmin('Ş')">Ş</button> <button class="tus ozel" onclick="harfTahmin('Ğ')">Ğ</button> <button class="tus ozel" onclick="harfTahmin('Ü')">Ü</button> <button class="tus ozel" onclick="harfTahmin('Ö')">Ö</button> <button class="tus ozel" onclick="harfTahmin('İ')">İ</button>
     </div>
   </div>
 
   <div class="alt">
-    <button class="btn btn-red" id="carkBtn" onclick="carkCevir()">🔄 ÇARKı ÇEVİR</button>
+    <button class="btn btn-blue" id="carkBtn" onclick="carkCevir()">🔄 ÇARKı ÇEVİR</button>
+    <button class="btn btn-red" id="tahminEtBtn" onclick="kelimeTahminEt()">❓ KELİMEYİ TAHMİN ET</button>
   </div>
   <div class="bilgi" id="bilgiDiv"></div>
 </div>
@@ -307,19 +308,52 @@ const sorular = [
   { s: "Mutfakta yemek pişirmeye yarayan araç", c: "TENCERE" },
   { s: "Dört ayağı olan, sadık evcil hayvan", c: "KÖPEK" }
 ];
+const carkDilimleri = [100, 200, 300, 500, 750, 1000, 'PAS', 'İFLAS'];
 
-function normalize(s) { return s.toLocaleUpperCase('tr-TR').trim(); }
+function normalize(s) { return s.toLocaleUpperCase('tr-TR').trim(); } // Tüm kelimeler büyük harf olacak
 
 // ================================================
 // OYUN DEĞİŞKENLERİ
 // ================================================
 let odaKodu = '';
 let benimRolum = ''; // 'host' veya 'guest'
-let benimAdim = '';
+let benimAdim = ''; // Kullanıcının adı
 let odaRef = null;
-let listeners = [];
 let carkDonuyor = false;
 let suankiSoru = null;
+let turResetleniyor = false; // Yeni tur zamanlayıcısının birden fazla tetiklenmesini önler
+
+// ================================================
+// YARDIMCI FONKSİYONLAR
+// ================================================
+function ekran(id){
+  document.querySelectorAll('.ekran').forEach(e=>e.classList.remove('aktif'));
+  document.getElementById(id).classList.add('aktif');
+}
+
+function bilgi(mesaj, uyari=false){
+  const el = document.getElementById('bilgiDiv');
+  el.textContent = mesaj;
+  el.style.color = uyari ? '#ff6b85' : 'var(--gry)';
+  setTimeout(()=>el.textContent='', 2500);
+}
+
+function hataGoster(mesaj){
+  const el = document.getElementById('hataDiv');
+  el.textContent = mesaj; el.style.display='block';
+  setTimeout(()=>el.style.display='none', 3000);
+}
+
+function koduKopyala(){
+  const kod = document.getElementById('kodGoster').textContent;
+  navigator.clipboard.writeText(kod).then(()=>{
+    const el = document.getElementById('kodGoster');
+    const orig = el.textContent;
+    el.textContent='✅ Kopyalandı!';
+    el.style.fontSize='24px';
+    setTimeout(()=>{ el.textContent=orig; el.style.fontSize=''; },2000);
+  });
+}
 
 // ================================================
 // 4 HANELİ RANDOM KOD ÜRET
@@ -357,7 +391,8 @@ async function odaOlustur(){
   await odaRef.set({
     host: { ad, skor: 0 },
     durum: 'bekleme',
-    acilanHarfler: '',
+    acilanHarfler: '', // Açılan harfler
+    tahminEdilenHarfler: '', // Tahmin edilen tüm harfler (doğru/yanlış)
     sira: 'host',
     tur: 1,
     olusturulma: Date.now(),
@@ -404,6 +439,7 @@ async function odayaKatil(){
   await odaRef.child('guest').set({ ad, skor: 0 });
   odaRef.onDisconnect().remove();
 
+  await odaRef.update({ durum: 'oyunda' }); // Oyun başladı
   oyunuBaslat();
 }
 
@@ -419,6 +455,7 @@ function oyunuBaslat(){
       odaRef.off('value', oyunuDinle);
       alert('Oda kapatıldı veya rakip ayrıldı.');
       window.location.reload();
+      odaRef = null; // Oda referansını temizle
       return;
     }
     const d = snap.val();
@@ -445,10 +482,14 @@ function guncelle(d){
   // Tur
   document.getElementById('turNo').textContent = `TUR ${d.tur || 1}`;
   
-  // Çark ve Soru
+  // Soru
   suankiSoru = sorular[d.soruIdx];
   document.getElementById('soruMetni').textContent = suankiSoru.s;
+
+  // Çark
   document.getElementById('cark').style.transform = `rotate(${d.carkAci}deg)`;
+  document.getElementById('carkSonuc').textContent = d.carkDegeri ? d.carkDegeri : '';
+  document.getElementById('carkSonuc').className = `cark-sonuc ${typeof d.carkDegeri === 'string' ? d.carkDegeri.toLowerCase() : ''}`;
 
   // Kutuları Çiz
   kutulariGuncelle(suankiSoru.c, d.acilanHarfler || '');
@@ -456,13 +497,13 @@ function guncelle(d){
   // Sıra
   const bendeSira = d.sira === benimRolum;
   
-  // Eğer bende sıraysa ve henüz çark çevrilmemişse (veya harf tahmini bekliyorsa)
-  // Bu örnekte basitlik için: Çark çevrilmeden klavye kapalı kalsın.
-  const carkCevrildiMi = d.carkDurum === 'bekliyor'; 
-  klavyeAktif(bendeSira && carkCevrildiMi);
-  document.getElementById('carkBtn').disabled = !bendeSira || carkCevrildiMi;
+  // Klavye ve butonların durumu
+  const carkCevrildiVeHarfBekleniyor = d.carkDurum === 'bekliyor';
+  klavyeAktif(bendeSira && carkCevrildiVeHarfBekleniyor, d.tahminEdilenHarfler);
+  document.getElementById('carkBtn').disabled = !bendeSira || carkCevrildiVeHarfBekleniyor;
+  document.getElementById('tahminEtBtn').disabled = !bendeSira; // Kelime tahmin et butonu her zaman aktif olabilir
 
-  siraGoster(bendeSira, rakipData.ad, d.acilanHarfler);
+  siraGoster(bendeSira, rakipData.ad);
 
   // Tur sonu overlay
   if(d.turSonu){
@@ -479,75 +520,162 @@ function guncelle(d){
 }
 
 // ================================================
-// HARF EKLE
+// ÇARK ÇEVİR
 // ================================================
-async function harf(h){
+async function carkCevir(){
   const snap = await odaRef.get();
   const d = snap.val();
-  if(!d || d.sira !== benimRolum){ bilgi('Sıra sende değil!', true); return; }
+  if(d.sira !== benimRolum || carkDonuyor){ bilgi('Sıra sende değil veya çark dönüyor!', true); return; }
   if(d.turSonu) return;
 
-  const yeni = (d.harfler || '') + h.toLocaleLowerCase('tr-TR');
+  carkDonuyor = true;
+  const rastgeleAci = Math.floor(Math.random() * 360) + 1800; // En az 5 tam tur
+  const dilimIndex = Math.floor((360 - (rastgeleAci % 360)) / (360 / carkDilimleri.length));
+  const carkDegeri = carkDilimleri[dilimIndex];
 
-  if(!kelimeVarMi(yeni)){
-    // Geçersiz — ben kaybettim
-    await kaybettim(d, 'gecersizHarf', yeni, null);
-    return;
-  }
-  if(tamKelimeMi(yeni)){
-    // Kelime tamamlandı — ben kaybettim
-    await kaybettim(d, 'tamamlandi', null, yeni);
-    return;
-  }
+  await odaRef.update({ carkAci: rastgeleAci, carkDurum: 'dönüyor', carkDegeri: null });
+  
+  setTimeout(async () => {
+    carkDonuyor = false;
+    await odaRef.update({ carkDegeri: carkDegeri, carkDurum: 'bekliyor' });
 
-  // Normal harf — sırayı değiştir
-  const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
-  await odaRef.update({ harfler: yeni, sira: rakipRolum });
+    if(carkDegeri === 'PAS'){
+      bilgi('PAS! Sıra rakibe geçti.', true);
+      const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+      await odaRef.update({ sira: rakipRolum, carkDurum: null });
+    } else if (carkDegeri === 'İFLAS'){
+      bilgi('İFLAS! Tüm puanların silindi ve sıra rakibe geçti.', true);
+      const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+      await odaRef.update({ 
+        [`${benimRolum}/skor`]: 0, // Turdaki puanı sıfırla
+        sira: rakipRolum, 
+        carkDurum: null 
+      });
+    } else {
+      bilgi(`Çark ${carkDegeri} puanında durdu! Harf seçebilirsin.`);
+    }
+  }, 3000); // Çarkın dönme süresi
 }
 
 // ================================================
-// İTİRAZ ET
+// KUTULARI GÜNCELLE
 // ================================================
-async function itirazEt(){
+function kutulariGuncelle(cevap, acilanlar){
+  const container = document.getElementById('kelimeKutulari');
+  container.innerHTML = '';
+  cevap.split('').forEach(harf => {
+    if(harf === ' '){
+      const d = document.createElement('div'); d.className = 'kutu bosluk';
+      container.appendChild(d);
+    } else {
+      const d = document.createElement('div');
+      const acik = acilanlar.includes(harf);
+      d.className = `kutu ${acik ? 'acik' : ''}`;
+      d.textContent = acik ? harf : '';
+      container.appendChild(d);
+    }
+  });
+}
+
+// ================================================
+// HARF TAHMİN ET
+// ================================================
+async function harfTahmin(h){
   const snap = await odaRef.get();
   const d = snap.val();
-  if(!d) return;
-  if(d.sira === benimRolum){ bilgi('Kendi sıranda itiraz edemezsin!', true); return; }
-  if(!d.harfler){ bilgi('Henüz harf yok!', true); return; }
+  if(d.sira !== benimRolum || d.carkDurum !== 'bekliyor'){ bilgi('Sıra sende değil veya çark çevrilmedi!', true); return; }
   if(d.turSonu) return;
 
-  const devamVar = kelimeler.some(k => k.startsWith(d.harfler) && k !== d.harfler);
+  const tahminEdilenHarfler = d.tahminEdilenHarfler || '';
+  if(tahminEdilenHarfler.includes(h)){
+    bilgi(`"${h}" harfi zaten tahmin edildi!`, true);
+    return;
+  }
+
+  const cevap = suankiSoru.c;
+  const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
+  const carkDegeri = d.carkDegeri;
+
+  if(cevap.includes(h)){
+    // Harf doğru
+    let harfSayisi = 0;
+    for(let i=0; i<cevap.length; i++){
+      if(cevap[i] === h) harfSayisi++;
+    }
+    const kazanilanPuan = carkDegeri * harfSayisi;
+    const benimYeniSkor = (d[benimRolum].skor || 0) + kazanilanPuan;
+    const yeniAcilanHarfler = (d.acilanHarfler || '') + h;
+
+    bilgi(`"${h}" harfi doğru! ${harfSayisi} adet var. ${kazanilanPuan} puan kazandın!`);
+
+    // Kelime tamamlandı mı?
+    const tamamlandiMi = cevap.split('').every(char => char === ' ' || yeniAcilanHarfler.includes(char));
+
+    if(tamamlandiMi){
+      await rakipKaybetti(d, 'tamamlandi', benimYeniSkor, yeniAcilanHarfler); // Ben kazandım
+    } else {
+      await odaRef.update({ 
+        acilanHarfler: yeniAcilanHarfler,
+        tahminEdilenHarfler: tahminEdilenHarfler + h,
+        [`${benimRolum}/skor`]: benimYeniSkor,
+        carkDurum: null // Yeni çark çevirme hakkı
+      });
+    }
+  } else {
+    // Harf yanlış
+    bilgi(`"${h}" harfi kelimede yok. Sıra rakibe geçti.`, true);
+    await odaRef.update({ sira: rakipRolum, tahminEdilenHarfler: tahminEdilenHarfler + h, carkDurum: null });
+  }
+}
+
+// ================================================
+// KELİMEYİ TAHMİN ET
+// ================================================
+async function kelimeTahminEt(){
+  const snap = await odaRef.get();
+  const d = snap.val();
+  if(d.sira !== benimRolum){ bilgi('Sıra sende değil!', true); return; }
+  if(d.turSonu) return;
+
+  const tahmin = prompt('Kelimenin tamamını tahmin et:').toLocaleUpperCase('tr-TR').trim();
+  if(!tahmin) return;
+
+  const cevap = suankiSoru.c;
   const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
 
-  if(devamVar){
-    // Kelime var — ben kaybettim
-    await kaybettim(d, 'itirazHaksiz', null, null);
+  if(tahmin === cevap){
+    // Doğru tahmin!
+    bilgi('Tebrikler! Kelimeyi doğru tahmin ettin!');
+    // Kalan harf başına puan eklenebilir veya sabit puan verilebilir.
+    // Şimdilik sadece turu kazansın.
+    await rakipKaybetti(d, 'tamamlandi', (d[benimRolum].skor || 0) + 500, cevap); // 500 bonus puan
   } else {
-    // Kelime yok — rakip kaybetti, ben kazandım
-    await rakipKaybetti(d, 'itirazHakli');
+    // Yanlış tahmin
+    bilgi('Yanlış tahmin! Sıra rakibe geçti.', true);
+    await kaybettim(d, 'yanlisTahmin', tahmin, null); // Ben kaybettim
   }
 }
 
 // ================================================
 // KAYIP / KAZANIM İŞLEMLERİ
 // ================================================
-async function kaybettim(d, sebep, gecersizHarfler, tamamlananKelime){
+async function kaybettim(d, sebep, yanlisTahminKelime, tamamlananKelime){
   const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
   const rakipSkor  = (d[rakipRolum].skor || 0) + 1;
 
   await odaRef.update({
     [`${rakipRolum}/skor`]: rakipSkor,
-    turSonu: { kaybeden: benimRolum, sebep, gecersizHarfler, tamamlananKelime, zaman: Date.now() }
+    turSonu: { kaybeden: benimRolum, sebep, yanlisTahminKelime, tamamlananKelime, zaman: Date.now() }
   });
 }
 
-async function rakipKaybetti(d, sebep){
-  const benimSkor = (d[benimRolum].skor || 0) + 1;
+async function rakipKaybetti(d, sebep, benimYeniSkor, tamamlananKelime){
+  const benimSkor = benimYeniSkor || ((d[benimRolum].skor || 0) + 1); // Eğer yeni skor verilmediyse 1 puan ekle
   const rakipRolum = benimRolum === 'host' ? 'guest' : 'host';
 
   await odaRef.update({
     [`${benimRolum}/skor`]: benimSkor,
-    turSonu: { kaybeden: rakipRolum, sebep, zaman: Date.now() }
+    turSonu: { kaybeden: rakipRolum, sebep, tamamlananKelime, zaman: Date.now() }
   });
 }
 
@@ -561,11 +689,13 @@ function yeniTurZamanla(){
     const kaybeden = cur.turSonu?.kaybeden || 'host';
     const yeniSoruIdx = Math.floor(Math.random() * sorular.length);
     await odaRef.update({
-      acilanHarfler: '',
+      acilanHarfler: '', // Açılan harfleri sıfırla
+      tahminEdilenHarfler: '', // Tahmin edilen harfleri sıfırla
       sira: kaybeden,
       tur: (cur.tur || 1) + 1,
       turSonu: null,
       soruIdx: yeniSoruIdx,
+      carkDegeri: null,
       carkDurum: null
     });
   }, 3000);
@@ -575,7 +705,9 @@ async function cikisYap(){
   if(!confirm('Odadan ayrılmak istediğine emin misin?')) return;
   if(odaRef){
     if(benimRolum === 'host') await odaRef.remove();
-    else await odaRef.child('guest').remove();
+    else {
+      await odaRef.child('guest').remove();
+    }
   }
   location.reload();
 }
@@ -592,10 +724,8 @@ function turOverlayGoster(turSonu, benimSkor, rakipSkor, rakipAd){
   bas.style.color  = bendKazandim ? 'var(--grn)' : 'var(--red)';
 
   let acik = '';
-  if(turSonu.sebep === 'tamamlandi')    acik = `"${turSonu.tamamlananKelime?.toLocaleUpperCase('tr-TR')}" kelimesi tamamlandı!`;
-  else if(turSonu.sebep === 'gecersizHarf') acik = `"${turSonu.gecersizHarfler?.toLocaleUpperCase('tr-TR')}" ile başlayan kelime yok!`;
-  else if(turSonu.sebep === 'itirazHakli')  acik = 'İtiraz haklıydı — kelime yoktu!';
-  else if(turSonu.sebep === 'itirazHaksiz') acik = 'İtiraz haksızdı — kelime vardı!';
+  if(turSonu.sebep === 'tamamlandi')    acik = `"${turSonu.tamamlananKelime?.toLocaleUpperCase('tr-TR')}" kelimesi bulundu!`;
+  else if(turSonu.sebep === 'yanlisTahmin') acik = `"${turSonu.yanlisTahminKelime?.toLocaleUpperCase('tr-TR')}" yanlış tahmin edildi!`;
   document.getElementById('ovAciklama').textContent = acik;
 
   document.getElementById('ovSkor').innerHTML =
@@ -604,54 +734,17 @@ function turOverlayGoster(turSonu, benimSkor, rakipSkor, rakipAd){
   document.getElementById('turOverlay').classList.remove('gizli');
 }
 
-// ================================================
-// YARDIMCI FONKSİYONLAR
-// ================================================
-function ekran(id){
-  document.querySelectorAll('.ekran').forEach(e=>e.classList.remove('aktif'));
-  document.getElementById(id).classList.add('aktif');
+function klavyeAktif(aktif, tahminEdilenHarfler){
+  document.querySelectorAll('.tus').forEach(t=>{
+    const harf = t.textContent.toLocaleUpperCase('tr-TR');
+    t.disabled = !aktif || tahminEdilenHarfler.includes(harf);
+  });
 }
 
-function harfEkranGuncelle(h, turSonu){
-  const el = document.getElementById('harfEkran');
-  const sc = document.getElementById('harfSayac');
-  if(!h){ el.innerHTML='<span class="harf-bos">Henüz harf yok...</span>'; sc.textContent='0 harf'; }
-  else  { el.textContent = h.toLocaleUpperCase('tr-TR'); sc.textContent=`${h.length} harf`; }
-}
-
-function klavyeAktif(aktif, harfler){
-  document.querySelectorAll('.tus').forEach(t=>t.disabled=!aktif);
-  document.getElementById('itirazBtn').disabled = aktif || !harfler;
-}
-
-function siraGoster(bendeSira, rakipAd, harfler){
+function siraGoster(bendeSira, rakipAd){
   document.getElementById('siraDiv').textContent = bendeSira ? '⚡ SENİN SIRAN' : `⏳ ${rakipAd}'nın Sırası`;
   document.getElementById('ok1').classList.toggle('aktif', bendeSira);
   document.getElementById('ok2').classList.toggle('aktif', !bendeSira);
-}
-
-function bilgi(mesaj, uyari=false){
-  const el = document.getElementById('bilgiDiv');
-  el.textContent = mesaj;
-  el.style.color = uyari ? '#ff6b85' : 'var(--gry)';
-  setTimeout(()=>el.textContent='', 2500);
-}
-
-function hataGoster(mesaj){
-  const el = document.getElementById('hataDiv');
-  el.textContent = mesaj; el.style.display='block';
-  setTimeout(()=>el.style.display='none', 3000);
-}
-
-function koduKopyala(){
-  const kod = document.getElementById('kodGoster').textContent;
-  navigator.clipboard.writeText(kod).then(()=>{
-    const el = document.getElementById('kodGoster');
-    const orig = el.textContent;
-    el.textContent='✅ Kopyalandı!';
-    el.style.fontSize='24px';
-    setTimeout(()=>{ el.textContent=orig; el.style.fontSize=''; },2000);
-  });
 }
 
 // Fiziksel klavye
@@ -659,9 +752,9 @@ document.addEventListener('keydown', e=>{
   const inputlar = ['INPUT', 'TEXTAREA'];
   if(inputlar.includes(document.activeElement.tagName)) return;
   if(!document.getElementById('oyun').classList.contains('aktif')) return;
-  const h = e.key.toLocaleLowerCase('tr-TR');
-  const gecerli = 'abcçdefgğhıijklmnoöprsştuüvyz';
-  if(h.length===1 && gecerli.includes(h)) harf(h);
+  const h = e.key.toLocaleUpperCase('tr-TR');
+  const gecerli = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ';
+  if(h.length===1 && gecerli.includes(h)) harfTahmin(h);
 });
 </script>
 </body>
